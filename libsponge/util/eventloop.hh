@@ -19,17 +19,20 @@ class EventLoop {
 
   private:
     using CallbackT = std::function<void(void)>;  //!< Callback for ready Rule::fd
-    using InterestT = std::function<bool(void)>;  //!< `true` return indicates Rule::fd should be polled.
+    using InterestT =
+        std::function<bool(void)>;  //!< `true` return indicates Rule::fd should be polled.
 
     //! \brief Specifies a condition and callback that an EventLoop should handle.
     //! \details Created by calling EventLoop::add_rule() or EventLoop::add_cancelable_rule().
     class Rule {
       public:
-        FileDescriptor fd;    //!< FileDescriptor to monitor for activity.
-        Direction direction;  //!< Direction::In for reading from fd, Direction::Out for writing to fd.
-        CallbackT callback;   //!< A callback that reads or writes fd.
-        InterestT interest;   //!< A callback that returns `true` whenever fd should be polled.
-        CallbackT cancel;     //!< A callback that is called when the rule is cancelled (e.g. on hangup)
+        FileDescriptor fd;  //!< FileDescriptor to monitor for activity.
+        Direction
+            direction;  //!< Direction::In for reading from fd, Direction::Out for writing to fd.
+        CallbackT callback;  //!< A callback that reads or writes fd.
+        InterestT interest;  //!< A callback that returns `true` whenever fd should be polled.
+        CallbackT
+            cancel;  //!< A callback that is called when the rule is cancelled (e.g. on hangup)
 
         //! Returns the number of times fd has been read or written, depending on the value of Rule::direction.
         //! \details This function is used internally by EventLoop; you will not need to call it
@@ -47,11 +50,12 @@ class EventLoop {
     };
 
     //! Add a rule whose callback will be called when `fd` is ready in the specified Direction.
-    void add_rule(const FileDescriptor &fd,
-                  const Direction direction,
-                  const CallbackT &callback,
-                  const InterestT &interest = [] { return true; },
-                  const CallbackT &cancel = [] {});
+    void add_rule(
+        const FileDescriptor &fd,
+        const Direction direction,
+        const CallbackT &callback,
+        const InterestT &interest = [] { return true; },
+        const CallbackT &cancel = [] {});
 
     //! Calls [poll(2)](\ref man2::poll) and then executes callback for each ready fd.
     Result wait_next_event(const int timeout_ms);

@@ -62,10 +62,14 @@ class FileDescriptor {
     void read(std::string &str, const size_t limit = std::numeric_limits<size_t>::max());
 
     //! Write a string, possibly blocking until all is written
-    size_t write(const char *str, const bool write_all = true) { return write(BufferViewList(str), write_all); }
+    size_t write(const char *str, const bool write_all = true) {
+        return write(BufferViewList(str), write_all);
+    }
 
     //! Write a string, possibly blocking until all is written
-    size_t write(const std::string &str, const bool write_all = true) { return write(BufferViewList(str), write_all); }
+    size_t write(const std::string &str, const bool write_all = true) {
+        return write(BufferViewList(str), write_all);
+    }
 
     //! Write a buffer (or list of buffers), possibly blocking until all is written
     size_t write(BufferViewList buffer, const bool write_all = true);
@@ -101,10 +105,13 @@ class FileDescriptor {
     //! \name Copy/move constructor/assignment operators
     //! FileDescriptor can be moved, but cannot be copied (but see duplicate())
     //!@{
-    FileDescriptor(const FileDescriptor &other) = delete;             //!< \brief copy construction is forbidden
-    FileDescriptor &operator=(const FileDescriptor &other) = delete;  //!< \brief copy assignment is forbidden
-    FileDescriptor(FileDescriptor &&other) = default;                 //!< \brief move construction is allowed
-    FileDescriptor &operator=(FileDescriptor &&other) = default;      //!< \brief move assignment is allowed
+    FileDescriptor(const FileDescriptor &other) =
+        delete;  //!< \brief copy construction is forbidden
+    FileDescriptor &operator=(const FileDescriptor &other) =
+        delete;                                        //!< \brief copy assignment is forbidden
+    FileDescriptor(FileDescriptor &&other) = default;  //!< \brief move construction is allowed
+    FileDescriptor &operator=(FileDescriptor &&other) =
+        default;  //!< \brief move assignment is allowed
     //!@}
 };
 

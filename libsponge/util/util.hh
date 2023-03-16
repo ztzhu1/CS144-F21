@@ -22,8 +22,11 @@ class tagged_error : public std::system_error {
     //! \param[in] category is the category of error
     //! \param[in] attempt is what was supposed to happen
     //! \param[in] error_code is the resulting error
-    tagged_error(const std::error_category &category, const std::string &attempt, const int error_code)
-        : system_error(error_code, category), _attempt_and_error(attempt + ": " + std::system_error::what()) {}
+    tagged_error(const std::error_category &category,
+                 const std::string &attempt,
+                 const int error_code)
+        : system_error(error_code, category)
+        , _attempt_and_error(attempt + ": " + std::system_error::what()) {}
 
     //! Returns a C string describing the error
     const char *what() const noexcept override { return _attempt_and_error.c_str(); }
