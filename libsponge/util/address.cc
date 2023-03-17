@@ -15,7 +15,9 @@ using namespace std;
 Address::Raw::operator sockaddr *() { return reinterpret_cast<sockaddr *>(&storage); }
 
 //! Converts Raw to `const sockaddr *`.
-Address::Raw::operator const sockaddr *() const { return reinterpret_cast<const sockaddr *>(&storage); }
+Address::Raw::operator const sockaddr *() const {
+    return reinterpret_cast<const sockaddr *>(&storage);
+}
 
 //! \param[in] addr points to a raw socket address
 //! \param[in] size is `addr`'s length
@@ -36,7 +38,9 @@ class gai_error_category : public error_category {
     //! \brief An error message
     //! \param[in] return_value the error return value from [getaddrinfo(3)](\ref man3::getaddrinfo)
     //!                         or [getnameinfo(3)](\ref man3::getnameinfo)
-    string message(const int return_value) const noexcept override { return gai_strerror(return_value); }
+    string message(const int return_value) const noexcept override {
+        return gai_strerror(return_value);
+    }
 };
 
 //! \param[in] node is the hostname or dotted-quad address
@@ -49,7 +53,8 @@ Address::Address(const string &node, const string &service, const addrinfo &hint
     // look up the name or names
     const int gai_ret = getaddrinfo(node.c_str(), service.c_str(), &hints, &resolved_address);
     if (gai_ret != 0) {
-        throw tagged_error(gai_error_category(), "getaddrinfo(" + node + ", " + service + ")", gai_ret);
+        throw tagged_error(
+            gai_error_category(), "getaddrinfo(" + node + ", " + service + ")", gai_ret);
     }
 
     // if success, should always have at least one entry
@@ -59,7 +64,8 @@ Address::Address(const string &node, const string &service, const addrinfo &hint
 
     // put resolved_address in a wrapper so it will get freed if we have to throw an exception
     auto addrinfo_deleter = [](addrinfo *const x) { freeaddrinfo(x); };
-    unique_ptr<addrinfo, decltype(addrinfo_deleter)> wrapped_address(resolved_address, move(addrinfo_deleter));
+    unique_ptr<addrinfo, decltype(addrinfo_deleter)> wrapped_address(resolved_address,
+                                                                     move(addrinfo_deleter));
 
     // assign to our private members (making sure size fits)
     *this = Address(wrapped_address->ai_addr, wrapped_address->ai_addrlen);
@@ -91,8 +97,13 @@ pair<string, uint16_t> Address::ip_port() const {
     array<char, NI_MAXHOST> ip{};
     array<char, NI_MAXSERV> port{};
 
-    const int gni_ret =
-        getnameinfo(_address, _size, ip.data(), ip.size(), port.data(), port.size(), NI_NUMERICHOST | NI_NUMERICSERV);
+    const int gni_ret = getnameinfo(_address,
+                                    _size,
+                                    ip.data(),
+                                    ip.size(),
+                                    port.data(),
+                                    port.size(),
+                                    NI_NUMERICHOST | NI_NUMERICSERV);
     if (gni_ret != 0) {
         throw tagged_error(gai_error_category(), "getnameinfo", gni_ret);
     }

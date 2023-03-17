@@ -6,7 +6,7 @@ AlwaysBreakTemplateDeclarations: true
 BinPackArguments: false
 BinPackParameters: false
 BreakConstructorInitializers: BeforeComma
-ColumnLimit: 120
+ColumnLimit: 100
 CommentPragmas: '^(!|NOLINT)'
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 IncludeBlocks: Regroup

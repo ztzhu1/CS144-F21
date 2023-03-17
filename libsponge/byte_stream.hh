@@ -3,6 +3,36 @@
 
 #include <string>
 
+class ByteStream;
+
+class RingBuffer {
+    friend class ByteStream;
+
+  private:
+    size_t capacity_{0};
+    size_t head_{0};
+    size_t tail_{0};
+    char *inner_data_{nullptr};
+    bool full_{false};
+
+    void init(const size_t capacity);
+
+  public:
+    RingBuffer() = default;
+    explicit RingBuffer(size_t capacity);
+    RingBuffer(const RingBuffer &) = delete;
+    RingBuffer(const RingBuffer &&) = delete;
+    ~RingBuffer();
+    const RingBuffer &operator=(const RingBuffer &) = delete;
+
+    size_t size() const { return full_ ? capacity_ : (tail_ - head_ + capacity_) % capacity_; }
+    size_t capacity() const { return capacity_; }
+    size_t remaining_size() const { return capacity_ - size(); }
+    void push_back(const std::string &data, const size_t len);
+    std::string peek_front(const size_t len) const;
+    void pop_front(const size_t len);
+};
+
 //! \brief An in-order byte stream.
 
 //! Bytes are written on the "input" side and read from the "output"
@@ -17,7 +47,14 @@ class ByteStream {
     // that's a sign that you probably want to keep exploring
     // different approaches.
 
+    void push_str(const std::string &data, const size_t len);
+
     bool _error{};  //!< Flag indicating that the stream suffered an error.
+    size_t bytes_written_{0};
+    size_t bytes_read_{0};
+    RingBuffer buf_{};
+    bool input_ended_{false};
+    bool eof_{false};
 
   public:
     //! Construct a stream with room for `capacity` bytes.

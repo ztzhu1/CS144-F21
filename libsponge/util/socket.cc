@@ -11,7 +11,8 @@ using namespace std;
 // default constructor for socket of (subclassed) domain and type
 //! \param[in] domain is as described in [socket(7)](\ref man7::socket), probably `AF_INET` or `AF_UNIX`
 //! \param[in] type is as described in [socket(7)](\ref man7::socket)
-Socket::Socket(const int domain, const int type) : FileDescriptor(SystemCall("socket", socket(domain, type, 0))) {}
+Socket::Socket(const int domain, const int type)
+    : FileDescriptor(SystemCall("socket", socket(domain, type, 0))) {}
 
 // construct from file descriptor
 //! \param[in] fd is the FileDescriptor from which to construct
@@ -58,11 +59,15 @@ Address Socket::peer_address() const { return get_address("getpeername", getpeer
 
 // bind socket to a specified local address (usually to listen/accept)
 //! \param[in] address is a local Address to bind
-void Socket::bind(const Address &address) { SystemCall("bind", ::bind(fd_num(), address, address.size())); }
+void Socket::bind(const Address &address) {
+    SystemCall("bind", ::bind(fd_num(), address, address.size()));
+}
 
 // connect socket to a specified peer address
 //! \param[in] address is the peer's Address
-void Socket::connect(const Address &address) { SystemCall("connect", ::connect(fd_num(), address, address.size())); }
+void Socket::connect(const Address &address) {
+    SystemCall("connect", ::connect(fd_num(), address, address.size()));
+}
 
 // shut down a socket in the specified way
 //! \param[in] how can be `SHUT_RD`, `SHUT_WR`, or `SHUT_RDWR`; see [shutdown(2)](\ref man2::shutdown)
@@ -92,10 +97,13 @@ void UDPSocket::recv(received_datagram &datagram, const size_t mtu) {
 
     socklen_t fromlen = sizeof(datagram_source_address);
 
-    const ssize_t recv_len = SystemCall(
-        "recvfrom",
-        ::recvfrom(
-            fd_num(), datagram.payload.data(), datagram.payload.size(), MSG_TRUNC, datagram_source_address, &fromlen));
+    const ssize_t recv_len = SystemCall("recvfrom",
+                                        ::recvfrom(fd_num(),
+                                                   datagram.payload.data(),
+                                                   datagram.payload.size(),
+                                                   MSG_TRUNC,
+                                                   datagram_source_address,
+                                                   &fromlen));
 
     if (recv_len > ssize_t(mtu)) {
         throw runtime_error("recvfrom (oversized datagram)");
@@ -160,7 +168,8 @@ TCPSocket TCPSocket::accept() {
 //! \details See [setsockopt(2)](\ref man2::setsockopt) for details.
 template <typename option_type>
 void Socket::setsockopt(const int level, const int option, const option_type &option_value) {
-    SystemCall("setsockopt", ::setsockopt(fd_num(), level, option, &option_value, sizeof(option_value)));
+    SystemCall("setsockopt",
+               ::setsockopt(fd_num(), level, option, &option_value, sizeof(option_value)));
 }
 
 // allow local address to be reused sooner, at the cost of some robustness

@@ -25,3 +25,10 @@ add_subdirectory ("${PROJECT_SOURCE_DIR}/tests")
 add_subdirectory ("${PROJECT_SOURCE_DIR}/doctests")
 
 include (etc/tests.cmake)
+
+file (GLOB_RECURSE SRC_LIST ${PROJECT_SOURCE_DIR} "*.cc" "*.hh")
+
+add_custom_target(
+    cformat
+    COMMAND clang-format-14 -style=file ${SRC_LIST} -i
+)
