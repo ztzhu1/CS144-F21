@@ -5,6 +5,11 @@
 
 class ByteStream;
 
+/**
+ * This class doesn't keep the "Modern C++" style
+ * which is required in lab document. I want to
+ * take it as a practice to use `new[]` and `delete[]`.
+ */
 class RingBuffer {
     friend class ByteStream;
 
