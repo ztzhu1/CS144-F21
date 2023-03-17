@@ -98,6 +98,7 @@ void RingBuffer::push_back(const std::string &data, const size_t len) {
     assert(data.size() >= len);
     auto data_ptr = const_cast<char *>(data.c_str());
     if (tail_ >= head_) {
+        // it must be not full, or the assertion should have failed.
         size_t tail_remaining_size = capacity_ - tail_;
         if (tail_remaining_size >= len) {
             std::memcpy(
