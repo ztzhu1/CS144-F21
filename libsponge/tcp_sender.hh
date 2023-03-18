@@ -6,7 +6,9 @@
 #include "tcp_segment.hh"
 #include "wrapping_integers.hh"
 
+#include <cassert>
 #include <functional>
+#include <list>
 #include <queue>
 
 //! \brief The "sender" part of a TCP implementation.
@@ -17,20 +19,62 @@
 //! segments if the retransmission timer expires.
 class TCPSender {
   private:
+    class OutstandingSegment {
+      public:
+        TCPSegment seg_;
+        uint64_t abs_seqno_;
+
+      public:
+        OutstandingSegment() = delete;
+        explicit OutstandingSegment(const TCPSegment &seg, uint64_t abs_seqno)
+            : seg_(seg), abs_seqno_(abs_seqno) {}
+        uint64_t length_in_sequence_space() { return seg_.length_in_sequence_space(); };
+        uint64_t abs_seqno_at_end() { return abs_seqno_ + length_in_sequence_space(); };
+        const TCPSegment &segment() { return seg_; };
+    };
+
+    void push_outstanding_seg(const TCPSegment &seg);
+    void pop_outstanding_seg();
+    void connect();
+    void send(const TCPSegment &seg);
+    void resend(const TCPSegment &seg);
+    uint64_t get_next_stream_index() {
+        assert(next_seqno_ > 0);
+        return next_seqno_ - 1;
+    };
+    uint64_t get_abs_seqno(WrappingInt32 seqno) { return unwrap(seqno, isn_, checkpoint_); }
+    void begin_timing();
+    void reset_timer();
+    void update_timer_after_timeout();
+    bool timeout() { return countdown_ == 0; }
+
     //! our initial sequence number, the number for our SYN.
-    WrappingInt32 _isn;
+    const WrappingInt32 isn_;
 
     //! outbound queue of segments that the TCPSender wants sent
-    std::queue<TCPSegment> _segments_out{};
+    std::queue<TCPSegment> segments_out_{};
 
     //! retransmission timer for the connection
-    unsigned int _initial_retransmission_timeout;
+    unsigned int initial_retransmission_timeout_;
+    unsigned int rto_;
+    unsigned int countdown_;
+    bool timing{false};
 
     //! outgoing stream of bytes that have not yet been sent
-    ByteStream _stream;
+    ByteStream stream_;
 
     //! the (absolute) sequence number for the next byte to be sent
-    uint64_t _next_seqno{0};
+    uint64_t next_seqno_{0};
+
+    bool sent_syn_{false};
+    uint64_t window_begin_{0};
+    uint16_t window_size_{1};
+    bool actual_zero_window_size_{false};
+    uint64_t bytes_in_flight_{0};
+    std::list<OutstandingSegment> outstanding_segs_{};
+    uint64_t checkpoint_{0};
+    unsigned int consecutive_rx_{0};
+    bool sent_all_{false};
 
   public:
     //! Initialize a TCPSender
@@ -40,8 +84,8 @@ class TCPSender {
 
     //! \name "Input" interface for the writer
     //!@{
-    ByteStream &stream_in() { return _stream; }
-    const ByteStream &stream_in() const { return _stream; }
+    ByteStream &stream_in() { return stream_; }
+    const ByteStream &stream_in() const { return stream_; }
     //!@}
 
     //! \name Methods that can cause the TCPSender to send a segment
@@ -75,17 +119,17 @@ class TCPSender {
     //! \note These must be dequeued and sent by the TCPConnection,
     //! which will need to fill in the fields that are set by the TCPReceiver
     //! (ackno and window size) before sending.
-    std::queue<TCPSegment> &segments_out() { return _segments_out; }
+    std::queue<TCPSegment> &segments_out() { return segments_out_; }
     //!@}
 
     //! \name What is the next sequence number? (used for testing)
     //!@{
 
     //! \brief absolute seqno for the next byte to be sent
-    uint64_t next_seqno_absolute() const { return _next_seqno; }
+    uint64_t next_seqno_absolute() const { return next_seqno_; }
 
     //! \brief relative seqno for the next byte to be sent
-    WrappingInt32 next_seqno() const { return wrap(_next_seqno, _isn); }
+    WrappingInt32 next_seqno() const { return wrap(next_seqno_, isn_); }
     //!@}
 };
 
