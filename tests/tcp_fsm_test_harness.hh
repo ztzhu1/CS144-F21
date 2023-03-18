@@ -52,7 +52,8 @@ class TestFdAdapter : public FdAdapterBase, public TestFD {
   public:
     void write(TCPSegment &seg);  //!< Write a TCPSegment to the underlying TestFD
 
-    void config_segment(TCPSegment &seg);  //!< Copy information from FdAdapterConfig into a TCPSegment
+    void config_segment(
+        TCPSegment &seg);  //!< Copy information from FdAdapterConfig into a TCPSegment
 };
 
 //! Test adapter for TCPConnection
@@ -64,8 +65,9 @@ class TCPTestHarness {
     //! A list of test steps that passed
     std::vector<std::string> _steps_executed{};
 
-    using State = TCPState::State;                 //!< TCP state names
-    using VecIterT = std::string::const_iterator;  //!< Alias for a const iterator to a vector of bytes
+    using State = TCPState::State;  //!< TCP state names
+    using VecIterT =
+        std::string::const_iterator;  //!< Alias for a const iterator to a vector of bytes
 
     //! Construct a test harness, optionally passing a configuration to the TCPConnection under test
     explicit TCPTestHarness(const TCPConfig &c_fsm = {}) : _fsm(c_fsm) {}
@@ -74,7 +76,9 @@ class TCPTestHarness {
     void send_fin(const WrappingInt32 seqno, const std::optional<WrappingInt32> ackno = {});
 
     //! construct an ACK segment and inject it into TCPConnection
-    void send_ack(const WrappingInt32 seqno, const WrappingInt32 ackno, const std::optional<uint16_t> swin = {});
+    void send_ack(const WrappingInt32 seqno,
+                  const WrappingInt32 ackno,
+                  const std::optional<uint16_t> swin = {});
 
     //! construct a RST segment and inject it into TCPConnection
     void send_rst(const WrappingInt32 seqno, const std::optional<WrappingInt32> ackno = {});
@@ -83,10 +87,15 @@ class TCPTestHarness {
     void send_syn(const WrappingInt32 seqno, const std::optional<WrappingInt32> ackno = {});
 
     //! construct a segment containing one byte and inject it into TCPConnection
-    void send_byte(const WrappingInt32 seqno, const std::optional<WrappingInt32> ackno, const uint8_t val);
+    void send_byte(const WrappingInt32 seqno,
+                   const std::optional<WrappingInt32> ackno,
+                   const uint8_t val);
 
     //! construct a segment containing the specified payload and inject it into TCPConnection
-    void send_data(const WrappingInt32 seqno, const WrappingInt32 ackno, VecIterT begin, VecIterT end);
+    void send_data(const WrappingInt32 seqno,
+                   const WrappingInt32 ackno,
+                   VecIterT begin,
+                   VecIterT end);
 
     //! is it possible to read from the TestFdAdapter (i.e., read a segment TCPConnection previously wrote)?
     bool can_read() const { return _flt.can_read(); }
@@ -112,7 +121,8 @@ class TCPTestHarness {
     //! \details The SYN has been consumed, but not ACK'd by the test harness
     //! \param[in] tx_isn is the ISN of the FSM's outbound sequence. i.e. the
     //!            seqno for the SYN.
-    static TCPTestHarness in_syn_sent(const TCPConfig &cfg, const WrappingInt32 tx_isn = WrappingInt32{0});
+    static TCPTestHarness in_syn_sent(const TCPConfig &cfg,
+                                      const WrappingInt32 tx_isn = WrappingInt32{0});
 
     //! \brief Create an FSM with an established connection
     //! \details The mahine has sent and received a SYN, and both SYNs have been ACK'd

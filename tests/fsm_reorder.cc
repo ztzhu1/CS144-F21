@@ -21,7 +21,9 @@ using State = TCPTestHarness::State;
 
 static constexpr unsigned NREPS = 32;
 
-bool wrapping_lt(WrappingInt32 a, WrappingInt32 b) { return static_cast<int32_t>(b.raw_value() - a.raw_value()) > 0; }
+bool wrapping_lt(WrappingInt32 a, WrappingInt32 b) {
+    return static_cast<int32_t>(b.raw_value() - a.raw_value()) > 0;
+}
 bool wrapping_gt(WrappingInt32 a, WrappingInt32 b) { return wrapping_lt(b, a); }
 
 int main() {
@@ -38,8 +40,9 @@ int main() {
             vector<tuple<size_t, size_t>> seq_size;
             size_t datalen = 0;
             while (datalen < cfg.recv_capacity) {
-                const size_t size = min(1 + (static_cast<size_t>(rd()) % (TCPConfig::MAX_PAYLOAD_SIZE - 1)),
-                                        cfg.recv_capacity - datalen);
+                const size_t size =
+                    min(1 + (static_cast<size_t>(rd()) % (TCPConfig::MAX_PAYLOAD_SIZE - 1)),
+                        cfg.recv_capacity - datalen);
                 seq_size.emplace_back(datalen, size);
                 datalen += size;
             }
@@ -51,14 +54,15 @@ int main() {
             WrappingInt32 min_expect_ackno = rx_isn + 1;
             WrappingInt32 max_expect_ackno = rx_isn + 1;
             for (auto [off, sz] : seq_size) {
-                test_1.send_data(rx_isn + 1 + off, tx_isn + 1, d.cbegin() + off, d.cbegin() + off + sz);
+                test_1.send_data(
+                    rx_isn + 1 + off, tx_isn + 1, d.cbegin() + off, d.cbegin() + off + sz);
                 if (off == min_expect_ackno.raw_value()) {
                     min_expect_ackno = min_expect_ackno + sz;
                 }
                 max_expect_ackno = max_expect_ackno + sz;
 
-                TCPSegment seg =
-                    test_1.expect_seg(ExpectSegment{}.with_ack(true), "test 1 failed: no ACK for datagram");
+                TCPSegment seg = test_1.expect_seg(ExpectSegment{}.with_ack(true),
+                                                   "test 1 failed: no ACK for datagram");
 
                 auto &seg_hdr = seg.header();
 
@@ -80,8 +84,9 @@ int main() {
             vector<tuple<size_t, size_t>> seq_size;
             size_t datalen = 0;
             while (datalen < cfg.recv_capacity) {
-                const size_t size = min(1 + (static_cast<size_t>(rd()) % (TCPConfig::MAX_PAYLOAD_SIZE - 1)),
-                                        cfg.recv_capacity - datalen);
+                const size_t size =
+                    min(1 + (static_cast<size_t>(rd()) % (TCPConfig::MAX_PAYLOAD_SIZE - 1)),
+                        cfg.recv_capacity - datalen);
                 const size_t rem = TCPConfig::MAX_PAYLOAD_SIZE - size;
                 size_t offs;
                 if (rem == 0) {
@@ -91,7 +96,8 @@ int main() {
                 } else {
                     offs = min(min(datalen, rem), 1 + (static_cast<size_t>(rd()) % (rem - 1)));
                 }
-                test_err_if(size + offs > TCPConfig::MAX_PAYLOAD_SIZE, "test 2 internal error: bad payload size");
+                test_err_if(size + offs > TCPConfig::MAX_PAYLOAD_SIZE,
+                            "test 2 internal error: bad payload size");
                 seq_size.emplace_back(datalen - offs, size + offs);
                 datalen += size;
             }
@@ -104,14 +110,16 @@ int main() {
             WrappingInt32 min_expect_ackno = rx_isn + 1;
             WrappingInt32 max_expect_ackno = rx_isn + 1;
             for (auto [off, sz] : seq_size) {
-                test_2.send_data(rx_isn + 1 + off, tx_isn + 1, d.cbegin() + off, d.cbegin() + off + sz);
-                if (off <= min_expect_ackno.raw_value() && off + sz > min_expect_ackno.raw_value()) {
+                test_2.send_data(
+                    rx_isn + 1 + off, tx_isn + 1, d.cbegin() + off, d.cbegin() + off + sz);
+                if (off <= min_expect_ackno.raw_value() &&
+                    off + sz > min_expect_ackno.raw_value()) {
                     min_expect_ackno = WrappingInt32(sz + off);
                 }
                 max_expect_ackno = max_expect_ackno + sz;  // really loose because of overlap
 
-                TCPSegment seg =
-                    test_2.expect_seg(ExpectSegment{}.with_ack(true), "test 2 failed: no ACK for datagram");
+                TCPSegment seg = test_2.expect_seg(ExpectSegment{}.with_ack(true),
+                                                   "test 2 failed: no ACK for datagram");
                 auto &seg_hdr = seg.header();
 
                 test_err_if(wrapping_lt(seg_hdr.ackno, min_expect_ackno) ||

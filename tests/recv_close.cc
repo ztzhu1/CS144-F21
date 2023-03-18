@@ -19,9 +19,11 @@ int main() {
             uint32_t isn = uniform_int_distribution<uint32_t>{0, UINT32_MAX}(rd);
             TCPReceiverTestHarness test{4000};
             test.execute(ExpectState{TCPReceiverStateSummary::LISTEN});
-            test.execute(SegmentArrives{}.with_syn().with_seqno(isn + 0).with_result(SegmentArrives::Result::OK));
+            test.execute(SegmentArrives{}.with_syn().with_seqno(isn + 0).with_result(
+                SegmentArrives::Result::OK));
             test.execute(ExpectState{TCPReceiverStateSummary::SYN_RECV});
-            test.execute(SegmentArrives{}.with_fin().with_seqno(isn + 1).with_result(SegmentArrives::Result::OK));
+            test.execute(SegmentArrives{}.with_fin().with_seqno(isn + 1).with_result(
+                SegmentArrives::Result::OK));
             test.execute(ExpectAckno{WrappingInt32{isn + 2}});
             test.execute(ExpectUnassembledBytes{0});
             test.execute(ExpectBytes{""});
@@ -33,10 +35,11 @@ int main() {
             uint32_t isn = uniform_int_distribution<uint32_t>{0, UINT32_MAX}(rd);
             TCPReceiverTestHarness test{4000};
             test.execute(ExpectState{TCPReceiverStateSummary::LISTEN});
-            test.execute(SegmentArrives{}.with_syn().with_seqno(isn + 0).with_result(SegmentArrives::Result::OK));
+            test.execute(SegmentArrives{}.with_syn().with_seqno(isn + 0).with_result(
+                SegmentArrives::Result::OK));
             test.execute(ExpectState{TCPReceiverStateSummary::SYN_RECV});
-            test.execute(
-                SegmentArrives{}.with_fin().with_seqno(isn + 1).with_data("a").with_result(SegmentArrives::Result::OK));
+            test.execute(SegmentArrives{}.with_fin().with_seqno(isn + 1).with_data("a").with_result(
+                SegmentArrives::Result::OK));
             test.execute(ExpectState{TCPReceiverStateSummary::FIN_RECV});
             test.execute(ExpectAckno{WrappingInt32{isn + 3}});
             test.execute(ExpectUnassembledBytes{0});

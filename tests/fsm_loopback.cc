@@ -29,7 +29,8 @@ int main() {
         // loop segments back into the same FSM
         for (unsigned rep_no = 0; rep_no < NREPS; ++rep_no) {
             const WrappingInt32 rx_offset(rd());
-            TCPTestHarness test_1 = TCPTestHarness::in_established(cfg, rx_offset - 1, rx_offset - 1);
+            TCPTestHarness test_1 =
+                TCPTestHarness::in_established(cfg, rx_offset - 1, rx_offset - 1);
             test_1.send_ack(rx_offset, rx_offset, 65000);
 
             string d(cfg.recv_capacity, 0);
@@ -45,7 +46,8 @@ int main() {
                 test_1.execute(Tick(1));
                 test_1.execute(ExpectBytesInFlight{len});
 
-                test_1.execute(ExpectSegmentAvailable{}, "test 1 failed: cannot read after write()");
+                test_1.execute(ExpectSegmentAvailable{},
+                               "test 1 failed: cannot read after write()");
 
                 size_t n_segments = ceil(double(len) / TCPConfig::MAX_PAYLOAD_SIZE);
                 size_t bytes_remaining = len;
@@ -61,7 +63,8 @@ int main() {
 
                 // Transfer the (bare) ack segments
                 for (size_t i = 0; i < n_segments; ++i) {
-                    auto seg = test_1.expect_seg(ExpectSegment{}.with_ack(true).with_payload_size(0));
+                    auto seg =
+                        test_1.expect_seg(ExpectSegment{}.with_ack(true).with_payload_size(0));
                     test_1.execute(SendSegment{move(seg)});
                     test_1.execute(Tick(1));
                 }

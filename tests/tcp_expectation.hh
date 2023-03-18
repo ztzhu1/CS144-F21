@@ -74,7 +74,8 @@ struct ExpectData : public TCPExpectation {
 
     void execute(TCPTestHarness &harness) const {
         if (harness._fsm.inbound_stream().buffer_empty()) {
-            throw SegmentExpectationViolation("The TCP should have data for the user, but does not");
+            throw SegmentExpectationViolation(
+                "The TCP should have data for the user, but does not");
         }
 
         const size_t bytes_avail = harness._fsm.inbound_stream().buffer_size();
@@ -82,7 +83,8 @@ struct ExpectData : public TCPExpectation {
         if (data.has_value()) {
             if (actual_data.size() != data->size()) {
                 std::ostringstream msg{"The TCP produced "};
-                msg << actual_data.size() << " bytes, but should have produced " << data->size() << " bytes";
+                msg << actual_data.size() << " bytes, but should have produced " << data->size()
+                    << " bytes";
                 throw TCPExpectationViolation(msg.str());
             }
             if (not std::equal(actual_data.begin(), actual_data.end(), data->begin())) {
@@ -99,7 +101,8 @@ struct ExpectSegmentAvailable : public TCPExpectation {
     std::string description() const { return "segment sent"; }
     void execute(TCPTestHarness &harness) const {
         if (not harness.can_read()) {
-            throw SegmentExpectationViolation("The TCP should have produces a segment, but did not");
+            throw SegmentExpectationViolation(
+                "The TCP should have produces a segment, but did not");
         }
     }
 };
@@ -240,10 +243,12 @@ struct ExpectSegment : public TCPExpectation {
             throw SegmentExpectationViolation::violated_field("fin", fin.value(), seg.header().fin);
         }
         if (seqno.has_value() and seg.header().seqno != seqno.value()) {
-            throw SegmentExpectationViolation::violated_field("seqno", seqno.value(), seg.header().seqno);
+            throw SegmentExpectationViolation::violated_field(
+                "seqno", seqno.value(), seg.header().seqno);
         }
         if (ackno.has_value() and seg.header().ackno != ackno.value()) {
-            throw SegmentExpectationViolation::violated_field("ackno", ackno.value(), seg.header().ackno);
+            throw SegmentExpectationViolation::violated_field(
+                "ackno", ackno.value(), seg.header().ackno);
         }
         if (win.has_value() and seg.header().win != win.value()) {
             throw SegmentExpectationViolation::violated_field("win", win.value(), seg.header().win);
@@ -267,7 +272,9 @@ struct ExpectSegment : public TCPExpectation {
 };
 
 struct ExpectOneSegment : public ExpectSegment {
-    std::string description() const { return "exactly one segment sent with " + segment_description(); }
+    std::string description() const {
+        return "exactly one segment sent with " + segment_description();
+    }
 
     TCPSegment expect_seg(TCPTestHarness &harness) const {
         TCPSegment seg = ExpectSegment::expect_seg(harness);
@@ -529,8 +536,8 @@ struct Write : public TCPAction {
         size_t bytes_written = harness._fsm.write(data);
         if (_bytes_written.has_value() and bytes_written != _bytes_written.value()) {
             throw TCPExpectationViolation(std::to_string(_bytes_written.value()) +
-                                          " bytes should have been written but " + std::to_string(bytes_written) +
-                                          " were");
+                                          " bytes should have been written but " +
+                                          std::to_string(bytes_written) + " were");
         }
     }
 };

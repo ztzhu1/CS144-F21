@@ -22,16 +22,20 @@ NetworkInterfaceExpectationViolation::NetworkInterfaceExpectationViolation(const
     : std::runtime_error(msg) {}
 
 template <typename T>
-NetworkInterfaceExpectationViolation NetworkInterfaceExpectationViolation::property(const std::string &property_name,
-                                                                                    const T &expected,
-                                                                                    const T &actual) {
-    return NetworkInterfaceExpectationViolation("The NetworkInterface should have had " + property_name + " equal to " +
-                                                to_string(expected) + " but instead it was " + to_string(actual));
+NetworkInterfaceExpectationViolation NetworkInterfaceExpectationViolation::property(
+    const std::string &property_name,
+    const T &expected,
+    const T &actual) {
+    return NetworkInterfaceExpectationViolation("The NetworkInterface should have had " +
+                                                property_name + " equal to " + to_string(expected) +
+                                                " but instead it was " + to_string(actual));
 }
 
 // NetworkInterfaceExpectation
 
-NetworkInterfaceExpectation::operator std::string() const { return "Expectation: " + description(); }
+NetworkInterfaceExpectation::operator std::string() const {
+    return "Expectation: " + description();
+}
 
 std::string NetworkInterfaceExpectation::description() const { return "description missing"; }
 
@@ -109,16 +113,19 @@ void NetworkInterfaceTestHarness::execute(const NetworkInterfaceTestStep &step) 
             std::cerr << "\n\t" << s;
         }
         std::cerr << std::endl << std::endl;
-        throw NetworkInterfaceExpectationViolation("The test \"" + _test_name +
-                                                   "\" caused your implementation to throw an exception!");
+        throw NetworkInterfaceExpectationViolation(
+            "The test \"" + _test_name + "\" caused your implementation to throw an exception!");
     }
 }
 
 string SendDatagram::description() const {
-    return "request to send datagram (to next hop " + next_hop.ip() + "): " + dgram.header().summary();
+    return "request to send datagram (to next hop " + next_hop.ip() +
+           "): " + dgram.header().summary();
 }
 
-void SendDatagram::execute(NetworkInterface &interface) const { interface.send_datagram(dgram, next_hop); }
+void SendDatagram::execute(NetworkInterface &interface) const {
+    interface.send_datagram(dgram, next_hop);
+}
 
 string ReceiveFrame::description() const { return "frame arrives (" + summary(frame) + ")"; }
 
@@ -129,14 +136,18 @@ void ReceiveFrame::execute(NetworkInterface &interface) const {
         return;
     } else if (result.has_value() and not expected.has_value()) {
         throw NetworkInterfaceExpectationViolation(
-            "an arriving Ethernet frame was passed up the stack as an Internet datagram, but was not expected to be "
+            "an arriving Ethernet frame was passed up the stack as an Internet datagram, but was "
+            "not expected to be "
             "(did destination address match our interface?)");
     } else if (expected.has_value() and not result.has_value()) {
         throw NetworkInterfaceExpectationViolation(
-            "an arriving Ethernet frame was expected to be passed up the stack as an Internet datagram, but wasn't");
-    } else if (result.value().serialize().concatenate() != expected.value().serialize().concatenate()) {
+            "an arriving Ethernet frame was expected to be passed up the stack as an Internet "
+            "datagram, but wasn't");
+    } else if (result.value().serialize().concatenate() !=
+               expected.value().serialize().concatenate()) {
         throw NetworkInterfaceExpectationViolation(
-            string("NetworkInterface::recv_frame() produced a different Internet datagram than was expected: ") +
+            string("NetworkInterface::recv_frame() produced a different Internet datagram than was "
+                   "expected: ") +
             "actual={" + result.value().header().summary() + "}");
     }
 }
@@ -149,7 +160,8 @@ void ExpectFrame::execute(NetworkInterface &interface) const {
             "NetworkInterface was expected to send an Ethernet frame, but did not");
     }
 
-    if (interface.frames_out().front().serialize().concatenate() != expected.serialize().concatenate()) {
+    if (interface.frames_out().front().serialize().concatenate() !=
+        expected.serialize().concatenate()) {
         throw NetworkInterfaceExpectationViolation(
             "NetworkInterface sent a different Ethernet frame than was expected: actual={" +
             summary(interface.frames_out().front()) + "}");

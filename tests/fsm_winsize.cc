@@ -40,9 +40,11 @@ int main() {
             test_1.execute(Listen{});
             test_1.send_syn(seq_base);
 
-            TCPSegment seg = test_1.expect_seg(
-                ExpectOneSegment{}.with_ack(true).with_ackno(seq_base + 1).with_win(cfg.recv_capacity),
-                "test 1 failed: SYN/ACK invalid");
+            TCPSegment seg = test_1.expect_seg(ExpectOneSegment{}
+                                                   .with_ack(true)
+                                                   .with_ackno(seq_base + 1)
+                                                   .with_win(cfg.recv_capacity),
+                                               "test 1 failed: SYN/ACK invalid");
             auto &seg_hdr = seg.header();
 
             const WrappingInt32 ack_base = seg_hdr.seqno;
@@ -64,29 +66,38 @@ int main() {
             string d_out(swin_mul * swin, 0);
             size_t bytes_total = 0;
             while (bytes_total < swin_mul * swin) {
-                test_1.execute(ExpectSegmentAvailable{}, "test 1 failed: nothing sent after write()");
+                test_1.execute(ExpectSegmentAvailable{},
+                               "test 1 failed: nothing sent after write()");
                 size_t bytes_read = 0;
                 while (test_1.can_read()) {
-                    TCPSegment seg2 = test_1.expect_seg(
-                        ExpectSegment{}.with_ack(true).with_ackno(seq_base + 1).with_win(cfg.recv_capacity),
-                        "test 1 failed: invalid datagrams carrying write() data");
+                    TCPSegment seg2 =
+                        test_1.expect_seg(ExpectSegment{}
+                                              .with_ack(true)
+                                              .with_ackno(seq_base + 1)
+                                              .with_win(cfg.recv_capacity),
+                                          "test 1 failed: invalid datagrams carrying write() data");
                     auto &seg2_hdr = seg2.header();
                     bytes_read += seg2.payload().size();
                     size_t seg2_first = seg2_hdr.seqno - ack_base - 1;
-                    copy(seg2.payload().str().cbegin(), seg2.payload().str().cend(), d_out.begin() + seg2_first);
+                    copy(seg2.payload().str().cbegin(),
+                         seg2.payload().str().cend(),
+                         d_out.begin() + seg2_first);
                 }
                 test_err_if(  // correct number of bytes sent
                     bytes_read + TCPConfig::MAX_PAYLOAD_SIZE < swin,
                     "test 1 failed: sender did not fill window");
-                test_1.execute(ExpectBytesInFlight{bytes_read}, "test 1 failed: sender wrong bytes_in_flight");
+                test_1.execute(ExpectBytesInFlight{bytes_read},
+                               "test 1 failed: sender wrong bytes_in_flight");
 
                 bytes_total += bytes_read;
                 // NOTE that we don't override send window here because cfg should have been updated
                 test_1.send_ack(seq_base + 1, ack_base + 1 + bytes_total, swin);
                 test_1.execute(Tick(1));
             }
-            test_1.execute(ExpectBytesInFlight{0}, "test 1 failed: after acking, bytes still in flight?");
-            test_err_if(!equal(d.cbegin(), d.cend(), d_out.cbegin()), "test 1 failed: data mismatch");
+            test_1.execute(ExpectBytesInFlight{0},
+                           "test 1 failed: after acking, bytes still in flight?");
+            test_err_if(!equal(d.cbegin(), d.cend(), d_out.cbegin()),
+                        "test 1 failed: data mismatch");
         }
     } catch (const exception &e) {
         cerr << e.what() << endl;

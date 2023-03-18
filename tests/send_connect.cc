@@ -22,7 +22,9 @@ int main() {
 
             TCPSenderTestHarness test{"SYN sent test", cfg};
             test.execute(ExpectState{TCPSenderStateSummary::SYN_SENT});
-            test.execute(ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(isn));
+            test.execute(
+                ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(
+                    isn));
             test.execute(ExpectBytesInFlight{1});
         }
 
@@ -33,7 +35,9 @@ int main() {
 
             TCPSenderTestHarness test{"SYN acked test", cfg};
             test.execute(ExpectState{TCPSenderStateSummary::SYN_SENT});
-            test.execute(ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(isn));
+            test.execute(
+                ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(
+                    isn));
             test.execute(ExpectBytesInFlight{1});
             test.execute(AckReceived{WrappingInt32{isn + 1}});
             test.execute(ExpectState{TCPSenderStateSummary::SYN_ACKED});
@@ -48,7 +52,9 @@ int main() {
 
             TCPSenderTestHarness test{"SYN -> wrong ack test", cfg};
             test.execute(ExpectState{TCPSenderStateSummary::SYN_SENT});
-            test.execute(ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(isn));
+            test.execute(
+                ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(
+                    isn));
             test.execute(ExpectBytesInFlight{1});
             test.execute(AckReceived{WrappingInt32{isn}});
             test.execute(ExpectState{TCPSenderStateSummary::SYN_SENT});
@@ -63,7 +69,9 @@ int main() {
 
             TCPSenderTestHarness test{"SYN acked, data", cfg};
             test.execute(ExpectState{TCPSenderStateSummary::SYN_SENT});
-            test.execute(ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(isn));
+            test.execute(
+                ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(
+                    isn));
             test.execute(ExpectBytesInFlight{1});
             test.execute(AckReceived{WrappingInt32{isn + 1}});
             test.execute(ExpectState{TCPSenderStateSummary::SYN_ACKED});

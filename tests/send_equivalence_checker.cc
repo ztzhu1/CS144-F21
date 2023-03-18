@@ -14,14 +14,14 @@ void check_equivalent_segments(const TCPSegment &a, const TCPSegment &b) {
         cerr << a.header().to_string() << endl;
         cerr << b.header().to_string() << endl;
         stringstream s{};
-        s << a.header().summary() << " with " << a.payload().size() << " bytes != " << b.header().summary() << " with "
-          << b.payload().size() << " bytes";
+        s << a.header().summary() << " with " << a.payload().size()
+          << " bytes != " << b.header().summary() << " with " << b.payload().size() << " bytes";
         throw runtime_error(s.str());
     }
     if (a.payload().str() != b.payload().str()) {
         stringstream s{};
-        s << a.header().summary() << " with " << a.payload().size() << " bytes != " << b.header().summary() << " with "
-          << b.payload().size() << " bytes";
+        s << a.header().summary() << " with " << a.payload().size()
+          << " bytes != " << b.header().summary() << " with " << b.payload().size() << " bytes";
         throw runtime_error("unequal payloads: " + s.str());
     }
 }

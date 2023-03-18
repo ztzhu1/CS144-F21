@@ -26,7 +26,8 @@ static void ack_listen_test(const TCPConfig &cfg,
         test.execute(ExpectState{State::LISTEN});
         test.execute(ExpectNoSegment{}, "test 3 failed: ACKs in LISTEN should be ignored");
     } catch (const exception &e) {
-        throw runtime_error(string(e.what()) + " (ack_listen_test called from line " + to_string(lineno) + ")");
+        throw runtime_error(string(e.what()) + " (ack_listen_test called from line " +
+                            to_string(lineno) + ")");
     }
 }
 
@@ -44,7 +45,8 @@ static void ack_rst_syn_sent_test(const TCPConfig &cfg,
         test.execute(ExpectState{State::SYN_SENT});
         test.execute(ExpectNoSegment{}, "test 3 failed: bad ACKs in SYN_SENT should be ignored");
     } catch (const exception &e) {
-        throw runtime_error(string(e.what()) + " (ack_rst_syn_sent_test called from line " + to_string(lineno) + ")");
+        throw runtime_error(string(e.what()) + " (ack_rst_syn_sent_test called from line " +
+                            to_string(lineno) + ")");
     }
 }
 
@@ -72,7 +74,8 @@ int main() {
                 // ack in the future---should get ACK back
                 test_1.send_ack(base_seq, base_seq + 1);
 
-                test_1.execute(ExpectOneSegment{}.with_ack(true).with_ackno(base_seq), "test 1 failed: bad ACK");
+                test_1.execute(ExpectOneSegment{}.with_ack(true).with_ackno(base_seq), "test 1
+               failed: bad ACK");
             */
 
             // segment out of the window---should get an ACK
@@ -80,7 +83,8 @@ int main() {
 
             test_1.execute(ExpectUnassembledBytes{0}, "test 1 failed: seg queued on early seqno");
 
-            test_1.execute(ExpectOneSegment{}.with_ack(true).with_ackno(base_seq), "test 1 failed: bad ACK");
+            test_1.execute(ExpectOneSegment{}.with_ack(true).with_ackno(base_seq),
+                           "test 1 failed: bad ACK");
 
             // segment out of the window---should get an ACK
             test_1.send_byte(base_seq + cfg.recv_capacity, base_seq, 1);
@@ -94,7 +98,8 @@ int main() {
 
             test_1.execute(ExpectData{}, "test 1 failed: pkt not processed on next seqno");
 
-            test_1.execute(ExpectOneSegment{}.with_ack(true).with_ackno(base_seq + 1), "test 1 failed: bad ACK");
+            test_1.execute(ExpectOneSegment{}.with_ack(true).with_ackno(base_seq + 1),
+                           "test 1 failed: bad ACK");
 
             test_1.send_rst(base_seq + 1);
             test_1.execute(ExpectState{State::RESET});
@@ -134,7 +139,8 @@ int main() {
             test_4.send_rst(base_seq, base_seq + 1);
 
             test_4.execute(ExpectState{State::RESET});
-            test_4.execute(ExpectNoSegment{}, "test 4 failed: RST with good ackno should RESET the connection");
+            test_4.execute(ExpectNoSegment{},
+                           "test 4 failed: RST with good ackno should RESET the connection");
         }
 
         // test 5: ack/rst in SYN_SENT

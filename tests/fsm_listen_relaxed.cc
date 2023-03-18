@@ -31,8 +31,9 @@ int main() {
             test_1.send_syn(WrappingInt32{0}, {});
             test_1.execute(Tick(1));
 
-            TCPSegment seg = test_1.expect_seg(ExpectOneSegment{}.with_syn(true).with_ack(true).with_ackno(1),
-                                               "test 1 failed: no SYN/ACK in response to SYN");
+            TCPSegment seg =
+                test_1.expect_seg(ExpectOneSegment{}.with_syn(true).with_ack(true).with_ackno(1),
+                                  "test 1 failed: no SYN/ACK in response to SYN");
             test_1.execute(ExpectState{State::SYN_RCVD});
 
             /* remove requirement for corrective ACK in response to out-of-window seqno
@@ -41,14 +42,15 @@ int main() {
                 test_1.execute(Tick(1));
 
                 test_1.execute(
-                    ExpectOneSegment{}.with_no_flags().with_ack(true).with_ackno(1).with_seqno(seg.header().seqno + 1),
-                    "test 1 failed: wrong response to old seqno");
+                    ExpectOneSegment{}.with_no_flags().with_ack(true).with_ackno(1).with_seqno(seg.header().seqno
+               + 1), "test 1 failed: wrong response to old seqno");
 
                 test_1.send_ack(WrappingInt32(cfg.recv_capacity + 1), syn_seqno + 1);
                 test_1.execute(Tick(1));
 
                 test_1.execute(
-                    ExpectOneSegment{}.with_no_flags().with_ack(true).with_ackno(1).with_seqno(seg.header().seqno + 1));
+                    ExpectOneSegment{}.with_no_flags().with_ack(true).with_ackno(1).with_seqno(seg.header().seqno
+               + 1));
             */
 
             test_1.send_ack(WrappingInt32{1}, seg.header().seqno + 1);

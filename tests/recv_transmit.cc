@@ -19,8 +19,10 @@ int main() {
 
         {
             TCPReceiverTestHarness test{4000};
-            test.execute(SegmentArrives{}.with_syn().with_seqno(0).with_result(SegmentArrives::Result::OK));
-            test.execute(SegmentArrives{}.with_seqno(1).with_data("abcd").with_result(SegmentArrives::Result::OK));
+            test.execute(
+                SegmentArrives{}.with_syn().with_seqno(0).with_result(SegmentArrives::Result::OK));
+            test.execute(SegmentArrives{}.with_seqno(1).with_data("abcd").with_result(
+                SegmentArrives::Result::OK));
             test.execute(ExpectAckno{WrappingInt32{5}});
             test.execute(ExpectBytes{"abcd"});
             test.execute(ExpectUnassembledBytes{0});
@@ -30,15 +32,16 @@ int main() {
         {
             uint32_t isn = 384678;
             TCPReceiverTestHarness test{4000};
-            test.execute(SegmentArrives{}.with_syn().with_seqno(isn).with_result(SegmentArrives::Result::OK));
-            test.execute(
-                SegmentArrives{}.with_seqno(isn + 1).with_data("abcd").with_result(SegmentArrives::Result::OK));
+            test.execute(SegmentArrives{}.with_syn().with_seqno(isn).with_result(
+                SegmentArrives::Result::OK));
+            test.execute(SegmentArrives{}.with_seqno(isn + 1).with_data("abcd").with_result(
+                SegmentArrives::Result::OK));
             test.execute(ExpectAckno{WrappingInt32{isn + 5}});
             test.execute(ExpectUnassembledBytes{0});
             test.execute(ExpectTotalAssembledBytes{4});
             test.execute(ExpectBytes{"abcd"});
-            test.execute(
-                SegmentArrives{}.with_seqno(isn + 5).with_data("efgh").with_result(SegmentArrives::Result::OK));
+            test.execute(SegmentArrives{}.with_seqno(isn + 5).with_data("efgh").with_result(
+                SegmentArrives::Result::OK));
             test.execute(ExpectAckno{WrappingInt32{isn + 9}});
             test.execute(ExpectUnassembledBytes{0});
             test.execute(ExpectTotalAssembledBytes{8});
@@ -48,14 +51,15 @@ int main() {
         {
             uint32_t isn = 5;
             TCPReceiverTestHarness test{4000};
-            test.execute(SegmentArrives{}.with_syn().with_seqno(isn).with_result(SegmentArrives::Result::OK));
-            test.execute(
-                SegmentArrives{}.with_seqno(isn + 1).with_data("abcd").with_result(SegmentArrives::Result::OK));
+            test.execute(SegmentArrives{}.with_syn().with_seqno(isn).with_result(
+                SegmentArrives::Result::OK));
+            test.execute(SegmentArrives{}.with_seqno(isn + 1).with_data("abcd").with_result(
+                SegmentArrives::Result::OK));
             test.execute(ExpectAckno{WrappingInt32{isn + 5}});
             test.execute(ExpectUnassembledBytes{0});
             test.execute(ExpectTotalAssembledBytes{4});
-            test.execute(
-                SegmentArrives{}.with_seqno(isn + 5).with_data("efgh").with_result(SegmentArrives::Result::OK));
+            test.execute(SegmentArrives{}.with_seqno(isn + 5).with_data("efgh").with_result(
+                SegmentArrives::Result::OK));
             test.execute(ExpectAckno{WrappingInt32{isn + 9}});
             test.execute(ExpectUnassembledBytes{0});
             test.execute(ExpectTotalAssembledBytes{8});
@@ -81,7 +85,8 @@ int main() {
             uint32_t n_rounds = 10000;
             uint32_t isn = 893472;
             size_t bytes_sent = 0;
-            test.execute(SegmentArrives{}.with_syn().with_seqno(isn).with_result(SegmentArrives::Result::OK));
+            test.execute(SegmentArrives{}.with_syn().with_seqno(isn).with_result(
+                SegmentArrives::Result::OK));
             for (uint32_t i = 0; i < n_rounds; ++i) {
                 string data;
                 uint32_t block_size = uniform_int_distribution<uint32_t>{1, max_block_size}(rd);
@@ -107,7 +112,8 @@ int main() {
             TCPReceiverTestHarness test{uint16_t(max_block_size * n_rounds)};
             uint32_t isn = 238;
             size_t bytes_sent = 0;
-            test.execute(SegmentArrives{}.with_syn().with_seqno(isn).with_result(SegmentArrives::Result::OK));
+            test.execute(SegmentArrives{}.with_syn().with_seqno(isn).with_result(
+                SegmentArrives::Result::OK));
             string all_data;
             for (uint32_t i = 0; i < n_rounds; ++i) {
                 string data;

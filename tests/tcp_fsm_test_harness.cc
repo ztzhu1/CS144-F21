@@ -84,7 +84,9 @@ void TCPTestHarness::send_fin(const WrappingInt32 seqno, const optional<Wrapping
 //! \param[in] seqno is the sequence number of the segment
 //! \param[in] ackno is the acknowledgment number of the segment
 //! \param[in] swin is the optional window size for the segment; if no value, uses default value (137 bytes)
-void TCPTestHarness::send_ack(const WrappingInt32 seqno, const WrappingInt32 ackno, const optional<uint16_t> swin) {
+void TCPTestHarness::send_ack(const WrappingInt32 seqno,
+                              const WrappingInt32 ackno,
+                              const optional<uint16_t> swin) {
     uint16_t win = DEFAULT_TEST_WINDOW;
     if (swin.has_value()) {
         win = swin.value();
@@ -117,12 +119,17 @@ void TCPTestHarness::send_syn(const WrappingInt32 seqno, const optional<Wrapping
 //! \param[in] seqno is the sequence number of the segment
 //! \param[in] ackno is the optional acknowledgment number of the segment; if no value, ACK flag is not set
 //! \param[in] val is the value of the one-byte payload
-void TCPTestHarness::send_byte(const WrappingInt32 seqno, const optional<WrappingInt32> ackno, const uint8_t val) {
+void TCPTestHarness::send_byte(const WrappingInt32 seqno,
+                               const optional<WrappingInt32> ackno,
+                               const uint8_t val) {
     SendSegment step{};
     if (ackno.has_value()) {
         step.with_ack(true).with_ackno(ackno.value());
     }
-    step.with_payload_size(1).with_data(string{&val, &val + 1}).with_seqno(seqno).with_win(DEFAULT_TEST_WINDOW);
+    step.with_payload_size(1)
+        .with_data(string{&val, &val + 1})
+        .with_seqno(seqno)
+        .with_win(DEFAULT_TEST_WINDOW);
     execute(step);
 }
 
@@ -130,7 +137,10 @@ void TCPTestHarness::send_byte(const WrappingInt32 seqno, const optional<Wrappin
 //! \param[in] ackno is the acknowledgment number of the segment
 //! \param[in] begin is an iterator to the start of the payload
 //! \param[in] end is an iterator to the end of the payload
-void TCPTestHarness::send_data(const WrappingInt32 seqno, const WrappingInt32 ackno, VecIterT begin, VecIterT end) {
+void TCPTestHarness::send_data(const WrappingInt32 seqno,
+                               const WrappingInt32 ackno,
+                               VecIterT begin,
+                               VecIterT end) {
     SendSegment step{};
     execute(SendSegment{}
                 .with_ack(true)
@@ -170,7 +180,8 @@ TCPSegment TCPTestHarness::expect_seg(const ExpectSegment &expectation, std::str
         _steps_executed.emplace_back(expectation.to_string());
         return ret;
     } catch (const TCPExpectationViolation &e) {
-        cerr << "Test Failure on expectation:\n\t" << expectation.description() << "\nFailure message:\n\t" << e.what();
+        cerr << "Test Failure on expectation:\n\t" << expectation.description()
+             << "\nFailure message:\n\t" << e.what();
         cerr << "\n\nList of steps that executed successfully:";
         for (const string &s : _steps_executed) {
             cerr << "\n\t" << s;
@@ -199,7 +210,8 @@ TCPTestHarness TCPTestHarness::in_syn_sent(const TCPConfig &cfg, const WrappingI
     c.fixed_isn = tx_isn;
     TCPTestHarness h{c};
     h.execute(Connect{});
-    h.execute(ExpectOneSegment{}.with_no_flags().with_syn(true).with_seqno(tx_isn).with_payload_size(0));
+    h.execute(
+        ExpectOneSegment{}.with_no_flags().with_syn(true).with_seqno(tx_isn).with_payload_size(0));
     return h;
 }
 
@@ -216,7 +228,11 @@ TCPTestHarness TCPTestHarness::in_established(const TCPConfig &cfg,
     // It has sent a SYN with nothing else, and that SYN has been consumed
     // We reply with ACK and SYN.
     h.send_syn(rx_isn, tx_isn + 1);
-    h.execute(ExpectOneSegment{}.with_no_flags().with_ack(true).with_ackno(rx_isn + 1).with_payload_size(0));
+    h.execute(ExpectOneSegment{}
+                  .with_no_flags()
+                  .with_ack(true)
+                  .with_ackno(rx_isn + 1)
+                  .with_payload_size(0));
     return h;
 }
 
@@ -246,8 +262,12 @@ TCPTestHarness TCPTestHarness::in_last_ack(const TCPConfig &cfg,
                                            const WrappingInt32 rx_isn) {
     TCPTestHarness h = in_close_wait(cfg, tx_isn, rx_isn);
     h.execute(Close{});
-    h.execute(
-        ExpectOneSegment{}.with_no_flags().with_fin(true).with_ack(true).with_seqno(tx_isn + 1).with_ackno(rx_isn + 2));
+    h.execute(ExpectOneSegment{}
+                  .with_no_flags()
+                  .with_fin(true)
+                  .with_ack(true)
+                  .with_seqno(tx_isn + 1)
+                  .with_ackno(rx_isn + 2));
     return h;
 }
 
@@ -263,8 +283,12 @@ TCPTestHarness TCPTestHarness::in_fin_wait_1(const TCPConfig &cfg,
                                              const WrappingInt32 rx_isn) {
     TCPTestHarness h = in_established(cfg, tx_isn, rx_isn);
     h.execute(Close{});
-    h.execute(
-        ExpectOneSegment{}.with_no_flags().with_fin(true).with_ack(true).with_ackno(rx_isn + 1).with_seqno(tx_isn + 1));
+    h.execute(ExpectOneSegment{}
+                  .with_no_flags()
+                  .with_fin(true)
+                  .with_ack(true)
+                  .with_ackno(rx_isn + 1)
+                  .with_seqno(tx_isn + 1));
     return h;
 }
 

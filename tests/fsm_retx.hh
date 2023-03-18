@@ -12,7 +12,10 @@
 #include <string>
 #include <vector>
 
-static void check_segment(TCPTestHarness &test, const std::string &data, const bool multiple, const int lineno) {
+static void check_segment(TCPTestHarness &test,
+                          const std::string &data,
+                          const bool multiple,
+                          const int lineno) {
     try {
         std::cerr << "  check_segment" << std::endl;
         test.execute(ExpectSegment{}.with_ack(true).with_payload_size(data.size()).with_data(data));

@@ -30,9 +30,10 @@ inline void show_ethernet_frame(const uint8_t *pkt, const struct pcap_pkthdr &hd
 }
 
 inline bool compare_tcp_headers_nolen(const TCPHeader &h1, const TCPHeader &h2) {
-    return h1.sport == h2.sport && h1.dport == h2.dport && h1.seqno == h2.seqno && h1.ackno == h2.ackno &&
-           h1.urg == h2.urg && h1.ack == h2.ack && h1.psh == h2.psh && h1.rst == h2.rst && h1.syn == h2.syn &&
-           h1.fin == h2.fin && h1.win == h2.win && h1.uptr == h2.uptr;
+    return h1.sport == h2.sport && h1.dport == h2.dport && h1.seqno == h2.seqno &&
+           h1.ackno == h2.ackno && h1.urg == h2.urg && h1.ack == h2.ack && h1.psh == h2.psh &&
+           h1.rst == h2.rst && h1.syn == h2.syn && h1.fin == h2.fin && h1.win == h2.win &&
+           h1.uptr == h2.uptr;
 }
 
 inline bool compare_tcp_headers(const TCPHeader &h1, const TCPHeader &h2) {

@@ -42,22 +42,24 @@ struct BytesAvailable : public ReassemblerExpectation {
     BytesAvailable(std::string &&bytes) : _bytes(std::move(bytes)) {}
     std::string description() const {
         std::ostringstream ss;
-        ss << "stream_out().buffer_size() returned " << _bytes.size() << ", and stream_out().read(" << _bytes.size()
-           << ") returned the string \"" << _bytes << "\"";
+        ss << "stream_out().buffer_size() returned " << _bytes.size() << ", and stream_out().read("
+           << _bytes.size() << ") returned the string \"" << _bytes << "\"";
         return ss.str();
     }
 
     void execute(StreamReassembler &reassembler) const {
         if (reassembler.stream_out().buffer_size() != _bytes.size()) {
             std::ostringstream ss;
-            ss << "The reassembler was expected to have `" << _bytes.size() << "` bytes available, but there were `"
-               << reassembler.stream_out().buffer_size() << "`";
+            ss << "The reassembler was expected to have `" << _bytes.size()
+               << "` bytes available, but there were `" << reassembler.stream_out().buffer_size()
+               << "`";
             throw ReassemblerExpectationViolation(ss.str());
         }
         std::string data = reassembler.stream_out().read(_bytes.size());
         if (data != _bytes) {
             std::ostringstream ss;
-            ss << "The reassembler was expected to have  bytes \"" << _bytes << "\", but there were \"" << data << "\"";
+            ss << "The reassembler was expected to have  bytes \"" << _bytes
+               << "\", but there were \"" << data << "\"";
             throw ReassemblerExpectationViolation(ss.str());
         }
     }
@@ -76,7 +78,8 @@ struct BytesAssembled : public ReassemblerExpectation {
     void execute(StreamReassembler &reassembler) const {
         if (reassembler.stream_out().bytes_written() != _bytes) {
             std::ostringstream ss;
-            ss << "The reassembler was expected to have `" << _bytes << "` total bytes assembled, but there were `"
+            ss << "The reassembler was expected to have `" << _bytes
+               << "` total bytes assembled, but there were `"
                << reassembler.stream_out().bytes_written() << "`";
             throw ReassemblerExpectationViolation(ss.str());
         }
@@ -96,8 +99,9 @@ struct UnassembledBytes : public ReassemblerExpectation {
     void execute(StreamReassembler &reassembler) const {
         if (reassembler.unassembled_bytes() != _bytes) {
             std::ostringstream ss;
-            ss << "The reassembler was expected to have `" << _bytes << "` bytes not assembled, but there were `"
-               << reassembler.unassembled_bytes() << "`";
+            ss << "The reassembler was expected to have `" << _bytes
+               << "` bytes not assembled, but there were `" << reassembler.unassembled_bytes()
+               << "`";
             throw ReassemblerExpectationViolation(ss.str());
         }
     }
@@ -156,7 +160,9 @@ struct SubmitSegment : public ReassemblerAction {
         return ss.str();
     }
 
-    void execute(StreamReassembler &reassembler) const { reassembler.push_substring(_data, _index, _eof); }
+    void execute(StreamReassembler &reassembler) const {
+        reassembler.push_substring(_data, _index, _eof);
+    }
 };
 
 class ReassemblerTestHarness {
@@ -189,7 +195,8 @@ class ReassemblerTestHarness {
                 std::cerr << "\n\t" << s;
             }
             std::cerr << std::endl << std::endl;
-            throw ReassemblerExpectationViolation("The test caused your implementation to throw an exception!");
+            throw ReassemblerExpectationViolation(
+                "The test caused your implementation to throw an exception!");
         }
     }
 };

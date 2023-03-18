@@ -21,7 +21,9 @@ int main() {
             cfg.fixed_isn = isn;
 
             TCPSenderTestHarness test{"Repeat ACK is ignored", cfg};
-            test.execute(ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(isn));
+            test.execute(
+                ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(
+                    isn));
             test.execute(ExpectNoSegment{});
             test.execute(AckReceived{WrappingInt32{isn + 1}});
             test.execute(WriteBytes{"a"});
@@ -37,7 +39,9 @@ int main() {
             cfg.fixed_isn = isn;
 
             TCPSenderTestHarness test{"Old ACK is ignored", cfg};
-            test.execute(ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(isn));
+            test.execute(
+                ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(
+                    isn));
             test.execute(ExpectNoSegment{});
             test.execute(AckReceived{WrappingInt32{isn + 1}});
             test.execute(WriteBytes{"a"});
@@ -60,7 +64,9 @@ int main() {
 
             TCPSenderTestHarness test{"Impossible ackno (beyond next seqno) is ignored", cfg};
             test.execute(ExpectState{TCPSenderStateSummary::SYN_SENT});
-            test.execute(ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(isn));
+            test.execute(
+                ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(
+                    isn));
             test.execute(AckReceived{WrappingInt32{isn + 2}}.with_win(1000));
             test.execute(ExpectState{TCPSenderStateSummary::SYN_SENT});
         }

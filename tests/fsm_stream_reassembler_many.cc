@@ -109,7 +109,8 @@ int main() {
             buf.push_substring(string(d.cbegin(), d.cbegin() + 15), size, true);
 
             auto res2 = read(buf);
-            if (buf.stream_out().bytes_written() != 2 * size && buf.stream_out().bytes_written() != size + 15) {
+            if (buf.stream_out().bytes_written() != 2 * size &&
+                buf.stream_out().bytes_written() != size + 15) {
                 throw runtime_error("test 4 - number of RX bytes is incorrect after 2nd read");
             }
             if (!equal(res2.cbegin(), res2.cend(), d.cbegin())) {

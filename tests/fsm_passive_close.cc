@@ -44,7 +44,8 @@ int main() {
 
             test_2.execute(ExpectState{State::LAST_ACK});
 
-            TCPSegment seg1 = test_2.expect_seg(ExpectOneSegment{}.with_fin(true), "test 2 falied: bad seg or no FIN");
+            TCPSegment seg1 = test_2.expect_seg(ExpectOneSegment{}.with_fin(true),
+                                                "test 2 falied: bad seg or no FIN");
 
             test_2.execute(Tick(cfg.rt_timeout - 2));
 
@@ -52,8 +53,9 @@ int main() {
 
             test_2.execute(Tick(2));
 
-            TCPSegment seg2 = test_2.expect_seg(ExpectOneSegment{}.with_fin(true).with_seqno(seg1.header().seqno),
-                                                "test 2 failed: bad re-tx FIN");
+            TCPSegment seg2 =
+                test_2.expect_seg(ExpectOneSegment{}.with_fin(true).with_seqno(seg1.header().seqno),
+                                  "test 2 failed: bad re-tx FIN");
 
             const WrappingInt32 rx_seqno{2};
             const auto ack_expect = rx_seqno;
@@ -100,7 +102,8 @@ int main() {
 
             test_3.execute(ExpectState{State::LAST_ACK});
 
-            TCPSegment seg3 = test_3.expect_seg(ExpectOneSegment{}.with_fin(true), "test 3 failed: bad seg or no FIN");
+            TCPSegment seg3 = test_3.expect_seg(ExpectOneSegment{}.with_fin(true),
+                                                "test 3 failed: bad seg or no FIN");
 
             test_3.send_ack(ack_expect, seg3.header().seqno + 1);
             test_3.execute(Tick(1));

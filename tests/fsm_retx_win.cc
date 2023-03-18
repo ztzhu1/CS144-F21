@@ -43,9 +43,11 @@ int main() {
             test_2.execute(Tick(2 * cfg.rt_timeout - 2));
             test_2.execute(ExpectNoSegment{}, "test 2 failed: re-tx too fast");
 
-            test_2.send_ack(tx_ackno, tx_ackno + 4);  // make sure RTO timer restarts on successful ACK
+            test_2.send_ack(tx_ackno,
+                            tx_ackno + 4);  // make sure RTO timer restarts on successful ACK
             test_2.execute(Tick(cfg.rt_timeout - 2));
-            test_2.execute(ExpectNoSegment{}, "test 2 failed: re-tx of 2nd seg after ack for 1st seg too fast");
+            test_2.execute(ExpectNoSegment{},
+                           "test 2 failed: re-tx of 2nd seg after ack for 1st seg too fast");
             test_2.execute(Tick(3));
             check_segment(test_2, d2, false, __LINE__);
         }
@@ -104,13 +106,15 @@ int main() {
             check_segment(test_4, d1, false, __LINE__);
 
             for (unsigned i = 1; i < num_backoffs; ++i) {
-                test_4.execute(Tick((cfg.rt_timeout << i) - i));  // exponentially increasing delay length
+                test_4.execute(
+                    Tick((cfg.rt_timeout << i) - i));  // exponentially increasing delay length
                 test_4.execute(ExpectNoSegment{}, "test 4 failed: re-tx too fast after timeout");
                 test_4.execute(Tick(i));
                 check_segment(test_4, d1, false, __LINE__);
             }
 
-            test_4.send_ack(tx_ackno, tx_ackno + 4);  // make sure RTO timer restarts on successful ACK
+            test_4.send_ack(tx_ackno,
+                            tx_ackno + 4);  // make sure RTO timer restarts on successful ACK
             test_4.execute(Tick(cfg.rt_timeout - 2));
             test_4.execute(ExpectNoSegment{},
                            "test 4 failed: re-tx of 2nd seg after ack for 1st seg too fast after " +

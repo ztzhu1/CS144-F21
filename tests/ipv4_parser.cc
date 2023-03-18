@@ -58,7 +58,8 @@ int main(int argc, char **argv) {
                 throw runtime_error("Parse error: id field is wrong");
             }
             if (uint16_t tval = ((test_header[6] & 0x7f) << 8) | test_header[7];
-                tval != ((test_hdr.df ? 0x4000 : 0) | (test_hdr.mf ? 0x2000 : 0) | test_hdr.offset)) {
+                tval !=
+                ((test_hdr.df ? 0x4000 : 0) | (test_hdr.mf ? 0x2000 : 0) | test_hdr.offset)) {
                 throw runtime_error("Parse error: flags or fragment offset is wrong");
             }
             if (test_header[8] != test_hdr.ttl) {
@@ -70,13 +71,13 @@ int main(int argc, char **argv) {
             if (uint16_t tval = (test_header[10] << 8) | test_header[11]; test_hdr.cksum != tval) {
                 throw runtime_error("Parse error: cksum is wrong");
             }
-            if (uint32_t tval =
-                    (test_header[12] << 24) | (test_header[13] << 16) | (test_header[14] << 8) | test_header[15];
+            if (uint32_t tval = (test_header[12] << 24) | (test_header[13] << 16) |
+                                (test_header[14] << 8) | test_header[15];
                 test_hdr.src != tval) {
                 throw runtime_error("Parse error: src addr is wrong");
             }
-            if (uint32_t tval =
-                    (test_header[16] << 24) | (test_header[17] << 16) | (test_header[18] << 8) | test_header[19];
+            if (uint32_t tval = (test_header[16] << 24) | (test_header[17] << 16) |
+                                (test_header[18] << 8) | test_header[19];
                 test_hdr.dst != tval) {
                 throw runtime_error("Parse error: dst addr is wrong");
             }
@@ -174,14 +175,16 @@ int main(int argc, char **argv) {
 
             const bool expect_fail = (pkt[12] != 0x08) || (pkt[13] != 0x00);
             IPv4Datagram ip_dgram;
-            if (auto res = ip_dgram.parse(string(pkt + 14, pkt + hdr.caplen)); res != ParseResult::NoError) {
+            if (auto res = ip_dgram.parse(string(pkt + 14, pkt + hdr.caplen));
+                res != ParseResult::NoError) {
                 // parse failed
                 if (expect_fail) {
                     continue;
                 }
 
                 auto ip_parse_result = as_string(res);
-                cout << "ERROR got unexpected IP parse failure " << ip_parse_result << " for this datagram:\n";
+                cout << "ERROR got unexpected IP parse failure " << ip_parse_result
+                     << " for this datagram:\n";
                 show_ethernet_frame(pkt, hdr);
                 hexdump(pkt + 14, hdr.caplen - 14);
                 ok = false;
@@ -197,7 +200,8 @@ int main(int argc, char **argv) {
                 }
 
                 auto tcp_parse_result = as_string(res);
-                cout << "ERROR got unexpected TCP parse failure " << tcp_parse_result << " for this segment:\n";
+                cout << "ERROR got unexpected TCP parse failure " << tcp_parse_result
+                     << " for this segment:\n";
                 show_ethernet_frame(pkt, hdr);
                 hexdump(pkt + 14, hdr.caplen - 14);
                 ok = false;
@@ -248,11 +252,13 @@ int main(int argc, char **argv) {
 
             string concat;
             concat.append(ip_dgram_copy.header().serialize());
-            concat.append(tcp_seg_copy.serialize(ip_dgram_copy.header().pseudo_cksum()).concatenate());
+            concat.append(
+                tcp_seg_copy.serialize(ip_dgram_copy.header().pseudo_cksum()).concatenate());
 
             if (auto res = ip_dgram_copy2.parse(string(concat)); res != ParseResult::NoError) {
                 auto ip_parse_result = as_string(res);
-                cout << "ERROR got IP parse failure " << ip_parse_result << " for this datagram (copy2):\n";
+                cout << "ERROR got IP parse failure " << ip_parse_result
+                     << " for this datagram (copy2):\n";
                 cout << ip_dgram_copy.header().to_string();
                 hexdump(concat.data(), concat.size());
                 cout << endl;
@@ -262,10 +268,12 @@ int main(int argc, char **argv) {
             }
 
             TCPSegment tcp_seg_copy2;
-            if (auto res = tcp_seg_copy2.parse(ip_dgram_copy2.payload(), ip_dgram_copy2.header().pseudo_cksum());
+            if (auto res = tcp_seg_copy2.parse(ip_dgram_copy2.payload(),
+                                               ip_dgram_copy2.header().pseudo_cksum());
                 res != ParseResult::NoError) {
                 auto tcp_parse_result = as_string(res);
-                cout << "ERROR got TCP parse failure " << tcp_parse_result << " for this segment (copy2):\n";
+                cout << "ERROR got TCP parse failure " << tcp_parse_result
+                     << " for this segment (copy2):\n";
                 cout << tcp_seg_copy.header().to_string();
                 ok = false;
                 continue;

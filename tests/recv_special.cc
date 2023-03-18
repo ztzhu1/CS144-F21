@@ -20,13 +20,14 @@ int main() {
             uint32_t isn = uniform_int_distribution<uint32_t>{0, UINT32_MAX}(rd);
             TCPReceiverTestHarness test{4000};
             test.execute(ExpectState{TCPReceiverStateSummary::LISTEN});
-            test.execute(
-                SegmentArrives{}.with_seqno(isn + 1).with_data("hello").with_result(SegmentArrives::Result::NOT_SYN));
+            test.execute(SegmentArrives{}.with_seqno(isn + 1).with_data("hello").with_result(
+                SegmentArrives::Result::NOT_SYN));
             test.execute(ExpectState{TCPReceiverStateSummary::LISTEN});
             test.execute(ExpectUnassembledBytes{0});
             test.execute(ExpectBytes{""});
             test.execute(ExpectTotalAssembledBytes{0});
-            test.execute(SegmentArrives{}.with_syn().with_seqno(isn).with_result(SegmentArrives::Result::OK));
+            test.execute(SegmentArrives{}.with_syn().with_seqno(isn).with_result(
+                SegmentArrives::Result::OK));
             test.execute(ExpectState{TCPReceiverStateSummary::SYN_RECV});
             test.execute(ExpectAckno{WrappingInt32{isn + 1}});
         }
@@ -52,15 +53,18 @@ int main() {
             uint32_t isn = uniform_int_distribution<uint32_t>{0, UINT32_MAX}(rd);
             TCPReceiverTestHarness test{4000};
             test.execute(ExpectState{TCPReceiverStateSummary::LISTEN});
-            test.execute(SegmentArrives{}.with_syn().with_seqno(isn).with_result(SegmentArrives::Result::OK));
+            test.execute(SegmentArrives{}.with_syn().with_seqno(isn).with_result(
+                SegmentArrives::Result::OK));
             test.execute(ExpectState{TCPReceiverStateSummary::SYN_RECV});
             test.execute(ExpectAckno{WrappingInt32{isn + 1}});
             test.execute(ExpectUnassembledBytes{0});
-            test.execute(SegmentArrives{}.with_syn().with_seqno(isn + 1).with_result(SegmentArrives::Result::OK));
+            test.execute(SegmentArrives{}.with_syn().with_seqno(isn + 1).with_result(
+                SegmentArrives::Result::OK));
             test.execute(ExpectUnassembledBytes{0});
             test.execute(ExpectTotalAssembledBytes{0});
             test.execute(ExpectInputNotEnded{});
-            test.execute(SegmentArrives{}.with_syn().with_seqno(isn + 5).with_result(SegmentArrives::Result::OK));
+            test.execute(SegmentArrives{}.with_syn().with_seqno(isn + 5).with_result(
+                SegmentArrives::Result::OK));
             test.execute(ExpectUnassembledBytes{0});
             test.execute(ExpectTotalAssembledBytes{0});
             test.execute(ExpectInputNotEnded{});
@@ -72,11 +76,13 @@ int main() {
             TCPReceiverTestHarness test{4000};
             const string text = "Here's a null byte:"s + '\0' + "and it's gone."s;
             test.execute(ExpectState{TCPReceiverStateSummary::LISTEN});
-            test.execute(SegmentArrives{}.with_syn().with_seqno(isn).with_result(SegmentArrives::Result::OK));
+            test.execute(SegmentArrives{}.with_syn().with_seqno(isn).with_result(
+                SegmentArrives::Result::OK));
             test.execute(ExpectState{TCPReceiverStateSummary::SYN_RECV});
             test.execute(ExpectUnassembledBytes{0});
             test.execute(ExpectTotalAssembledBytes{0});
-            test.execute(SegmentArrives{}.with_seqno(isn + 1).with_data(text).with_result(SegmentArrives::Result::OK));
+            test.execute(SegmentArrives{}.with_seqno(isn + 1).with_data(text).with_result(
+                SegmentArrives::Result::OK));
             test.execute(ExpectBytes{string(text)});
             test.execute(ExpectAckno{WrappingInt32{isn + 35}});
             test.execute(ExpectInputNotEnded{});
@@ -87,7 +93,8 @@ int main() {
             uint32_t isn = uniform_int_distribution<uint32_t>{0, UINT32_MAX}(rd);
             TCPReceiverTestHarness test{4000};
             test.execute(ExpectState{TCPReceiverStateSummary::LISTEN});
-            test.execute(SegmentArrives{}.with_syn().with_seqno(isn).with_result(SegmentArrives::Result::OK));
+            test.execute(SegmentArrives{}.with_syn().with_seqno(isn).with_result(
+                SegmentArrives::Result::OK));
             test.execute(ExpectState{TCPReceiverStateSummary::SYN_RECV});
             test.execute(SegmentArrives{}
                              .with_fin()
@@ -105,7 +112,8 @@ int main() {
             uint32_t isn = uniform_int_distribution<uint32_t>{0, UINT32_MAX}(rd);
             TCPReceiverTestHarness test{4000};
             test.execute(ExpectState{TCPReceiverStateSummary::LISTEN});
-            test.execute(SegmentArrives{}.with_syn().with_seqno(isn).with_result(SegmentArrives::Result::OK));
+            test.execute(SegmentArrives{}.with_syn().with_seqno(isn).with_result(
+                SegmentArrives::Result::OK));
             test.execute(ExpectState{TCPReceiverStateSummary::SYN_RECV});
             test.execute(SegmentArrives{}
                              .with_fin()
@@ -116,7 +124,8 @@ int main() {
             test.execute(ExpectBytes{""});
             test.execute(ExpectAckno{WrappingInt32{isn + 1}});
             test.execute(ExpectInputNotEnded{});
-            test.execute(SegmentArrives{}.with_data("G").with_seqno(isn + 1).with_result(SegmentArrives::Result::OK));
+            test.execute(SegmentArrives{}.with_data("G").with_seqno(isn + 1).with_result(
+                SegmentArrives::Result::OK));
             test.execute(ExpectState{TCPReceiverStateSummary::FIN_RECV});
             test.execute(ExpectBytes{"Goodbye, CS144!"});
             test.execute(ExpectAckno{WrappingInt32{isn + 17}});

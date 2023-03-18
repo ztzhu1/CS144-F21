@@ -27,8 +27,9 @@ int main() {
             // tell the FSM to connect, make sure we get a SYN
             test_1.execute(Connect{});
             test_1.execute(Tick(1));
-            TCPSegment seg1 = test_1.expect_seg(ExpectOneSegment{}.with_syn(true).with_ack(false),
-                                                "test 1 failed: could not parse SYN segment or invalid flags");
+            TCPSegment seg1 =
+                test_1.expect_seg(ExpectOneSegment{}.with_syn(true).with_ack(false),
+                                  "test 1 failed: could not parse SYN segment or invalid flags");
 
             test_1.execute(ExpectState{State::SYN_SENT});
 
@@ -50,8 +51,9 @@ int main() {
             test_2.execute(Connect{});
             test_2.execute(Tick(1));
 
-            TCPSegment seg = test_2.expect_seg(ExpectOneSegment{}.with_syn(true).with_ack(false),
-                                               "test 2 failed: could not parse SYN segment or invalid flags");
+            TCPSegment seg =
+                test_2.expect_seg(ExpectOneSegment{}.with_syn(true).with_ack(false),
+                                  "test 2 failed: could not parse SYN segment or invalid flags");
             auto &seg_hdr = seg.header();
 
             test_2.execute(ExpectState{State::SYN_SENT});
@@ -80,8 +82,9 @@ int main() {
             test_3.execute(Connect{});
             test_3.execute(Tick(1));
 
-            TCPSegment seg = test_3.expect_seg(ExpectOneSegment{}.with_syn(true).with_ack(false),
-                                               "test 3 failed: could not parse SYN segment or invalid flags");
+            TCPSegment seg =
+                test_3.expect_seg(ExpectOneSegment{}.with_syn(true).with_ack(false),
+                                  "test 3 failed: could not parse SYN segment or invalid flags");
             auto &seg_hdr = seg.header();
 
             test_3.execute(ExpectState{State::SYN_SENT});

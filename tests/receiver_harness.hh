@@ -39,8 +39,9 @@ struct ExpectState : public ReceiverExpectation {
     std::string description() const { return "in state `" + _state + "`"; }
     void execute(TCPReceiver &receiver) const {
         if (TCPState::state_summary(receiver) != _state) {
-            throw ReceiverExpectationViolation("The TCPReceiver was in state `" + TCPState::state_summary(receiver) +
-                                               "`, but it was expected to be in state `" + _state + "`");
+            throw ReceiverExpectationViolation(
+                "The TCPReceiver was in state `" + TCPState::state_summary(receiver) +
+                "`, but it was expected to be in state `" + _state + "`");
         }
     }
 };
@@ -59,9 +60,11 @@ struct ExpectAckno : public ReceiverExpectation {
 
     void execute(TCPReceiver &receiver) const {
         if (receiver.ackno() != _ackno) {
-            std::string reported =
-                receiver.ackno().has_value() ? std::to_string(receiver.ackno().value().raw_value()) : "none";
-            std::string expected = _ackno.has_value() ? std::to_string(_ackno.value().raw_value()) : "none";
+            std::string reported = receiver.ackno().has_value()
+                                       ? std::to_string(receiver.ackno().value().raw_value())
+                                       : "none";
+            std::string expected =
+                _ackno.has_value() ? std::to_string(_ackno.value().raw_value()) : "none";
             throw ReceiverExpectationViolation("The TCPReceiver reported ackno `" + reported +
                                                "`, but it was expected to be `" + expected + "`");
         }
@@ -94,7 +97,8 @@ struct ExpectUnassembledBytes : public ReceiverExpectation {
         if (receiver.unassembled_bytes() != _n_bytes) {
             std::ostringstream ss;
             ss << "The TCPReceiver reported `" << receiver.unassembled_bytes()
-               << "` unassembled bytes, but there was expected to be `" << _n_bytes << "` unassembled bytes";
+               << "` unassembled bytes, but there was expected to be `" << _n_bytes
+               << "` unassembled bytes";
             throw ReceiverExpectationViolation(ss.str());
         }
     }
@@ -104,13 +108,16 @@ struct ExpectTotalAssembledBytes : public ReceiverExpectation {
     size_t _n_bytes;
 
     ExpectTotalAssembledBytes(size_t n_bytes) : _n_bytes(n_bytes) {}
-    std::string description() const { return std::to_string(_n_bytes) + " assembled bytes, in total"; }
+    std::string description() const {
+        return std::to_string(_n_bytes) + " assembled bytes, in total";
+    }
 
     void execute(TCPReceiver &receiver) const {
         if (receiver.stream_out().bytes_written() != _n_bytes) {
             std::ostringstream ss;
             ss << "The TCPReceiver stream reported `" << receiver.stream_out().bytes_written()
-               << "` bytes written, but there was expected to be `" << _n_bytes << "` bytes written (in total)";
+               << "` bytes written, but there was expected to be `" << _n_bytes
+               << "` bytes written (in total)";
             throw ReceiverExpectationViolation(ss.str());
         }
     }
@@ -134,8 +141,8 @@ struct ExpectInputNotEnded : public ReceiverExpectation {
 
     void execute(TCPReceiver &receiver) const {
         if (receiver.stream_out().input_ended()) {
-            throw ReceiverExpectationViolation(
-                "The TCPReceiver stream reported input_ended() == true, but was expected to be false");
+            throw ReceiverExpectationViolation("The TCPReceiver stream reported input_ended() == "
+                                               "true, but was expected to be false");
         }
     }
 };
@@ -155,13 +162,15 @@ struct ExpectBytes : public ReceiverExpectation {
         if (stream.buffer_size() != _bytes.size()) {
             std::ostringstream ss;
             ss << "The TCPReceiver reported `" << stream.buffer_size()
-               << "` bytes available, but there were expected to be `" << _bytes.size() << "` bytes available";
+               << "` bytes available, but there were expected to be `" << _bytes.size()
+               << "` bytes available";
             throw ReceiverExpectationViolation(ss.str());
         }
         std::string bytes = stream.read(_bytes.size());
         if (not std::equal(bytes.begin(), bytes.end(), _bytes.begin(), _bytes.end())) {
             std::ostringstream ss;
-            ss << "the TCPReceiver assembled \"" << bytes << "\", but was expected to assemble \"" << _bytes << "\".";
+            ss << "the TCPReceiver assembled \"" << bytes << "\", but was expected to assemble \""
+               << _bytes << "\".";
             throw ReceiverExpectationViolation(ss.str());
         }
     }
@@ -286,8 +295,9 @@ struct SegmentArrives : public ReceiverAction {
         }
 
         if (result.has_value() and result.value() != res) {
-            throw ReceiverExpectationViolation("TCPReceiver::segment_received() reported `" + result_name(res) +
-                                               "` in response to `" + o.str() + "`, but it was expected to report `" +
+            throw ReceiverExpectationViolation("TCPReceiver::segment_received() reported `" +
+                                               result_name(res) + "` in response to `" + o.str() +
+                                               "`, but it was expected to report `" +
                                                result_name(result.value()) + "`");
         }
     }

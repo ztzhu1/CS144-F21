@@ -21,7 +21,9 @@ int main() {
             cfg.fixed_isn = isn;
 
             TCPSenderTestHarness test{"Initial receiver advertised window is respected", cfg};
-            test.execute(ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(isn));
+            test.execute(
+                ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(
+                    isn));
             test.execute(AckReceived{WrappingInt32{isn + 1}}.with_win(4));
             test.execute(ExpectNoSegment{});
             test.execute(WriteBytes{"abcdefg"});
@@ -35,7 +37,9 @@ int main() {
             cfg.fixed_isn = isn;
 
             TCPSenderTestHarness test{"Immediate window is respected", cfg};
-            test.execute(ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(isn));
+            test.execute(
+                ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(
+                    isn));
             test.execute(AckReceived{WrappingInt32{isn + 1}}.with_win(6));
             test.execute(ExpectNoSegment{});
             test.execute(WriteBytes{"abcdefg"});
@@ -54,7 +58,9 @@ int main() {
                 cfg.fixed_isn = isn;
 
                 TCPSenderTestHarness test{"Window " + to_string(i), cfg};
-                test.execute(ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(isn));
+                test.execute(
+                    ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(
+                        isn));
                 test.execute(AckReceived{WrappingInt32{isn + 1}}.with_win(len));
                 test.execute(ExpectNoSegment{});
                 test.execute(WriteBytes{string(2 * N_REPS, 'a')});
@@ -69,7 +75,9 @@ int main() {
             cfg.fixed_isn = isn;
 
             TCPSenderTestHarness test{"Window growth is exploited", cfg};
-            test.execute(ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(isn));
+            test.execute(
+                ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(
+                    isn));
             test.execute(AckReceived{WrappingInt32{isn + 1}}.with_win(4));
             test.execute(ExpectNoSegment{});
             test.execute(WriteBytes{"0123456789"});
@@ -85,7 +93,9 @@ int main() {
             cfg.fixed_isn = isn;
 
             TCPSenderTestHarness test{"FIN flag occupies space in window", cfg};
-            test.execute(ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(isn));
+            test.execute(
+                ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(
+                    isn));
             test.execute(AckReceived{WrappingInt32{isn + 1}}.with_win(7));
             test.execute(ExpectNoSegment{});
             test.execute(WriteBytes{"1234567"});
@@ -103,7 +113,9 @@ int main() {
             cfg.fixed_isn = isn;
 
             TCPSenderTestHarness test{"FIN flag occupies space in window (part II)", cfg};
-            test.execute(ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(isn));
+            test.execute(
+                ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(
+                    isn));
             test.execute(AckReceived{WrappingInt32{isn + 1}}.with_win(7));
             test.execute(ExpectNoSegment{});
             test.execute(WriteBytes{"1234567"});
@@ -121,7 +133,9 @@ int main() {
             cfg.fixed_isn = isn;
 
             TCPSenderTestHarness test{"Piggyback FIN in segment when space is available", cfg};
-            test.execute(ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(isn));
+            test.execute(
+                ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(
+                    isn));
             test.execute(AckReceived{WrappingInt32{isn + 1}}.with_win(3));
             test.execute(ExpectNoSegment{});
             test.execute(WriteBytes{"1234567"});

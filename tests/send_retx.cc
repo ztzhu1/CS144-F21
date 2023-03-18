@@ -23,20 +23,26 @@ int main() {
             cfg.rt_timeout = retx_timeout;
 
             TCPSenderTestHarness test{"Retx SYN twice at the right times, then ack", cfg};
-            test.execute(ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(isn));
+            test.execute(
+                ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(
+                    isn));
             test.execute(ExpectNoSegment{});
             test.execute(ExpectState{TCPSenderStateSummary::SYN_SENT});
             test.execute(Tick{retx_timeout - 1u});
             test.execute(ExpectNoSegment{});
             test.execute(Tick{1});
-            test.execute(ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(isn));
+            test.execute(
+                ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(
+                    isn));
             test.execute(ExpectState{TCPSenderStateSummary::SYN_SENT});
             test.execute(ExpectBytesInFlight{1});
             // Wait twice as long b/c exponential back-off
             test.execute(Tick{2 * retx_timeout - 1u});
             test.execute(ExpectNoSegment{});
             test.execute(Tick{1});
-            test.execute(ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(isn));
+            test.execute(
+                ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(
+                    isn));
             test.execute(ExpectState{TCPSenderStateSummary::SYN_SENT});
             test.execute(ExpectBytesInFlight{1});
             test.execute(AckReceived{WrappingInt32{isn + 1}});
@@ -52,18 +58,24 @@ int main() {
             cfg.rt_timeout = retx_timeout;
 
             TCPSenderTestHarness test{"Retx SYN until too many retransmissions", cfg};
-            test.execute(ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(isn));
+            test.execute(
+                ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(
+                    isn));
             test.execute(ExpectNoSegment{});
             test.execute(ExpectState{TCPSenderStateSummary::SYN_SENT});
             for (size_t attempt_no = 0; attempt_no < TCPConfig::MAX_RETX_ATTEMPTS; attempt_no++) {
                 test.execute(Tick{(retx_timeout << attempt_no) - 1u}.with_max_retx_exceeded(false));
                 test.execute(ExpectNoSegment{});
                 test.execute(Tick{1}.with_max_retx_exceeded(false));
-                test.execute(ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(isn));
+                test.execute(
+                    ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(
+                        isn));
                 test.execute(ExpectState{TCPSenderStateSummary::SYN_SENT});
                 test.execute(ExpectBytesInFlight{1});
             }
-            test.execute(Tick{(retx_timeout << TCPConfig::MAX_RETX_ATTEMPTS) - 1u}.with_max_retx_exceeded(false));
+            test.execute(
+                Tick{(retx_timeout << TCPConfig::MAX_RETX_ATTEMPTS) - 1u}.with_max_retx_exceeded(
+                    false));
             test.execute(Tick{1}.with_max_retx_exceeded(true));
         }
 
@@ -74,8 +86,11 @@ int main() {
             cfg.fixed_isn = isn;
             cfg.rt_timeout = retx_timeout;
 
-            TCPSenderTestHarness test{"Send some data, the retx and succeed, then retx till limit", cfg};
-            test.execute(ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(isn));
+            TCPSenderTestHarness test{"Send some data, the retx and succeed, then retx till limit",
+                                      cfg};
+            test.execute(
+                ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(
+                    isn));
             test.execute(ExpectNoSegment{});
             test.execute(AckReceived{WrappingInt32{isn + 1}});
             test.execute(WriteBytes{"abcd"});
@@ -101,7 +116,9 @@ int main() {
                 test.execute(ExpectState{TCPSenderStateSummary::SYN_ACKED});
                 test.execute(ExpectBytesInFlight{4});
             }
-            test.execute(Tick{(retx_timeout << TCPConfig::MAX_RETX_ATTEMPTS) - 1u}.with_max_retx_exceeded(false));
+            test.execute(
+                Tick{(retx_timeout << TCPConfig::MAX_RETX_ATTEMPTS) - 1u}.with_max_retx_exceeded(
+                    false));
             test.execute(Tick{1}.with_max_retx_exceeded(true));
         }
 

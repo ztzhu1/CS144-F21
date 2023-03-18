@@ -43,34 +43,39 @@ int main(int argc, char **argv) {
                     throw runtime_error("header parse failed: " + as_string(res));
                 }
             }
-            if (const uint16_t tval = (test_header[0] << 8) | test_header[1]; test_1.sport != tval) {
+            if (const uint16_t tval = (test_header[0] << 8) | test_header[1];
+                test_1.sport != tval) {
                 throw runtime_error("bad parse: wrong source port");
             }
-            if (const uint16_t tval = (test_header[2] << 8) | test_header[3]; test_1.dport != tval) {
+            if (const uint16_t tval = (test_header[2] << 8) | test_header[3];
+                test_1.dport != tval) {
                 throw runtime_error("bad parse: wrong destination port");
             }
-            if (const uint32_t tval =
-                    (test_header[4] << 24) | (test_header[5] << 16) | (test_header[6] << 8) | test_header[7];
+            if (const uint32_t tval = (test_header[4] << 24) | (test_header[5] << 16) |
+                                      (test_header[6] << 8) | test_header[7];
                 test_1.seqno.raw_value() != tval) {
                 throw runtime_error("bad parse: wrong seqno");
             }
-            if (const uint32_t tval =
-                    (test_header[8] << 24) | (test_header[9] << 16) | (test_header[10] << 8) | test_header[11];
+            if (const uint32_t tval = (test_header[8] << 24) | (test_header[9] << 16) |
+                                      (test_header[10] << 8) | test_header[11];
                 test_1.ackno.raw_value() != tval) {
                 throw runtime_error("bad parse: wrong ackno");
             }
-            if (const uint8_t tval = (test_1.urg ? 0x20 : 0) | (test_1.ack ? 0x10 : 0) | (test_1.psh ? 0x08 : 0) |
-                                     (test_1.rst ? 0x04 : 0) | (test_1.syn ? 0x02 : 0) | (test_1.fin ? 0x01 : 0);
+            if (const uint8_t tval = (test_1.urg ? 0x20 : 0) | (test_1.ack ? 0x10 : 0) |
+                                     (test_1.psh ? 0x08 : 0) | (test_1.rst ? 0x04 : 0) |
+                                     (test_1.syn ? 0x02 : 0) | (test_1.fin ? 0x01 : 0);
                 tval != (test_header[13] & 0x3f)) {
                 throw runtime_error("bad parse: bad flags");
             }
-            if (const uint16_t tval = (test_header[14] << 8) | test_header[15]; test_1.win != tval) {
+            if (const uint16_t tval = (test_header[14] << 8) | test_header[15];
+                test_1.win != tval) {
                 throw runtime_error("bad parse: wrong window value");
             }
             if (test_1.cksum != checksum) {
                 throw runtime_error("bad parse: wrong checksum");
             }
-            if (const uint16_t tval = (test_header[18] << 8) | test_header[19]; test_1.uptr != tval) {
+            if (const uint16_t tval = (test_header[18] << 8) | test_header[19];
+                test_1.uptr != tval) {
                 throw runtime_error("bad parse: wrong urgent pointer");
             }
 
@@ -81,18 +86,21 @@ int main(int argc, char **argv) {
                 test_header[17] = new_cksum & 0xff;
                 NetParser p{string(test_header.begin(), test_header.end())};
                 if (const auto res = test_1.parse(p); res != ParseResult::HeaderTooShort) {
-                    throw runtime_error("bad parse: got wrong error for header with bad doff value");
+                    throw runtime_error(
+                        "bad parse: got wrong error for header with bad doff value");
                 }
             }
 
             test_header[12] = 0x50;
             test_header[16] = (checksum >> 8) + max(int(rd()), 1);
             test_header[17] = checksum + max(int(rd()), 1);
-            /* // checksum is taken over whole segment, so only TCPSegment parser checks the checksum
+            /* // checksum is taken over whole segment, so only TCPSegment parser checks the
+               checksum
                 {
                     NetParser p{string(test_header.begin(), test_header.end())};
                     if (const auto res = test_1.parse(p); res != ParseResult::BadChecksum) {
-                        throw runtime_error("bad parse: got wrong error for incorrect checksum: " + as_string(res));
+                        throw runtime_error("bad parse: got wrong error for incorrect checksum: " +
+               as_string(res));
                     }
                 }
             */
@@ -103,8 +111,9 @@ int main(int argc, char **argv) {
             {
                 NetParser p{string(test_header.begin(), test_header.end())};
                 if (const auto res = test_1.parse(p); res != ParseResult::PacketTooShort) {
-                    throw runtime_error("bad parse: got wrong error for segment shorter than 4 * doff: " +
-                                        as_string(res));
+                    throw runtime_error(
+                        "bad parse: got wrong error for segment shorter than 4 * doff: " +
+                        as_string(res));
                 }
             }
 
@@ -113,7 +122,8 @@ int main(int argc, char **argv) {
             {
                 NetParser p{string(test_header.begin(), test_header.end())};
                 if (const auto res = test_1.parse(p); res != ParseResult::PacketTooShort) {
-                    throw runtime_error("bad parse: got wrong error for segment shorter than 20 bytes");
+                    throw runtime_error(
+                        "bad parse: got wrong error for segment shorter than 20 bytes");
                 }
             }
         }
@@ -160,12 +170,13 @@ int main(int argc, char **argv) {
                 vector<uint8_t> tcp_data(tcp_seg_data, tcp_seg_data + tcp_seg_len);
 
                 // fix up checksum to remove contribution from IPv4 pseudo-header
-                uint32_t cksum_fixup = ((pkt[26] << 8) | pkt[27]) + ((pkt[28] << 8) | pkt[29]);  // src addr
-                cksum_fixup += ((pkt[30] << 8) | pkt[31]) + ((pkt[32] << 8) | pkt[33]);          // dst addr
-                cksum_fixup += pkt[23];                                                          // proto
-                cksum_fixup += tcp_seg_len;                                                      // len
-                cksum_fixup += (tcp_data[16] << 8) | tcp_data[17];                               // original cksum
-                while (cksum_fixup > 0xffff) {                                                   // carry bits
+                uint32_t cksum_fixup =
+                    ((pkt[26] << 8) | pkt[27]) + ((pkt[28] << 8) | pkt[29]);             // src addr
+                cksum_fixup += ((pkt[30] << 8) | pkt[31]) + ((pkt[32] << 8) | pkt[33]);  // dst addr
+                cksum_fixup += pkt[23];                                                  // proto
+                cksum_fixup += tcp_seg_len;                                              // len
+                cksum_fixup += (tcp_data[16] << 8) | tcp_data[17];  // original cksum
+                while (cksum_fixup > 0xffff) {                      // carry bits
                     cksum_fixup = (cksum_fixup >> 16) + (cksum_fixup & 0xffff);
                 }
 
@@ -173,13 +184,15 @@ int main(int argc, char **argv) {
                 tcp_data[17] = cksum_fixup & 0xff;
 
                 TCPSegment tcp_seg_ret;
-                const auto parse_result = tcp_seg_ret.parse(string(tcp_data.begin(), tcp_data.end()), 0);
+                const auto parse_result =
+                    tcp_seg_ret.parse(string(tcp_data.begin(), tcp_data.end()), 0);
                 return make_tuple(tcp_seg_ret, parse_result);
             }();
 
             if (result != ParseResult::NoError) {
                 auto tcp_parse_result = as_string(result);
-                cout << "ERROR got unexpected parse failure " << tcp_parse_result << " for this segment:\n";
+                cout << "ERROR got unexpected parse failure " << tcp_parse_result
+                     << " for this segment:\n";
                 hexdump(tcp_seg_data, tcp_seg_len);
                 ok = false;
                 continue;

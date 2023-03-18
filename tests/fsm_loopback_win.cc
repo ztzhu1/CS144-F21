@@ -29,7 +29,8 @@ int main() {
         // loop segments back in a different order
         for (unsigned rep_no = 0; rep_no < NREPS; ++rep_no) {
             const WrappingInt32 rx_offset(rd());
-            TCPTestHarness test_2 = TCPTestHarness::in_established(cfg, rx_offset - 1, rx_offset - 1);
+            TCPTestHarness test_2 =
+                TCPTestHarness::in_established(cfg, rx_offset - 1, rx_offset - 1);
             test_2.send_ack(rx_offset, rx_offset, 65000);
 
             string d(cfg.recv_capacity, 0);
@@ -45,7 +46,8 @@ int main() {
                 test_2.execute(Write{d.substr(sendoff, len)});
                 test_2.execute(Tick(1));
 
-                test_2.execute(ExpectSegmentAvailable{}, "test 2 failed: cannot read after write()");
+                test_2.execute(ExpectSegmentAvailable{},
+                               "test 2 failed: cannot read after write()");
                 while (test_2.can_read()) {
                     segs.emplace_back(test_2.expect_seg(ExpectSegment{}));
                 }
@@ -60,7 +62,8 @@ int main() {
             for (auto idx : seg_idx) {
                 test_2.execute(SendSegment{std::move(segs[idx])});
                 test_2.execute(Tick(1));
-                TCPSegment s = test_2.expect_seg(ExpectOneSegment{}.with_ack(true), "test 2 failed: no ACK after rcvd");
+                TCPSegment s = test_2.expect_seg(ExpectOneSegment{}.with_ack(true),
+                                                 "test 2 failed: no ACK after rcvd");
                 acks.emplace_back(std::move(s));
                 test_2.execute(ExpectNoSegment{}, "test 2 failed: double ACK?");
             }

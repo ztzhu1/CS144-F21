@@ -41,8 +41,8 @@ class SegmentExpectationViolation : public SenderExpectationViolation {
                                                       const T &expected_value,
                                                       const T &actual_value) {
         std::stringstream ss{};
-        ss << "The Sender produced a segment with `" << field_name << " = " << actual_value << "`, but " << field_name
-           << " was expected to be `" << expected_value << "`";
+        ss << "The Sender produced a segment with `" << field_name << " = " << actual_value
+           << "`, but " << field_name << " was expected to be `" << expected_value << "`";
         return SegmentExpectationViolation{ss.str()};
     }
 };
@@ -61,8 +61,9 @@ struct ExpectState : public SenderExpectation {
     std::string description() const { return "in state `" + _state + "`"; }
     void execute(TCPSender &sender, std::queue<TCPSegment> &) const {
         if (TCPState::state_summary(sender) != _state) {
-            throw SenderExpectationViolation("The TCPSender was in state `" + TCPState::state_summary(sender) +
-                                             "`, but it was expected to be in state `" + _state + "`");
+            throw SenderExpectationViolation(
+                "The TCPSender was in state `" + TCPState::state_summary(sender) +
+                "`, but it was expected to be in state `" + _state + "`");
         }
     }
 };
@@ -77,8 +78,9 @@ struct ExpectSeqno : public SenderExpectation {
         if (sender.next_seqno() != _seqno) {
             std::string reported = std::to_string(sender.next_seqno().raw_value());
             std::string expected = to_string(_seqno);
-            throw SenderExpectationViolation("The TCPSender reported that the next seqno is `" + reported +
-                                             "`, but it was expected to be `" + expected + "`");
+            throw SenderExpectationViolation("The TCPSender reported that the next seqno is `" +
+                                             reported + "`, but it was expected to be `" +
+                                             expected + "`");
         }
     }
 };
@@ -93,7 +95,8 @@ struct ExpectBytesInFlight : public SenderExpectation {
         if (sender.bytes_in_flight() != _n_bytes) {
             std::ostringstream ss;
             ss << "The TCPSender reported " << sender.bytes_in_flight()
-               << " bytes in flight, but there was expected to be " << _n_bytes << " bytes in flight";
+               << " bytes in flight, but there was expected to be " << _n_bytes
+               << " bytes in flight";
             throw SenderExpectationViolation(ss.str());
         }
     }
@@ -129,7 +132,8 @@ struct WriteBytes : public SenderAction {
     WriteBytes(std::string &&bytes) : _bytes(std::move(bytes)), _end_input(false) {}
     std::string description() const {
         std::ostringstream ss;
-        ss << "write bytes: \"" << _bytes.substr(0, 16) << ((_bytes.size() > 16) ? "..." : "") << "\"";
+        ss << "write bytes: \"" << _bytes.substr(0, 16) << ((_bytes.size() > 16) ? "..." : "")
+           << "\"";
         if (_end_input) {
             ss << " + EOF";
         }
@@ -173,9 +177,11 @@ struct Tick : public SenderAction {
     void execute(TCPSender &sender, std::queue<TCPSegment> &) const {
         sender.tick(_ms);
         if (max_retx_exceeded.has_value() and
-            max_retx_exceeded != (sender.consecutive_retransmissions() > TCPConfig::MAX_RETX_ATTEMPTS)) {
+            max_retx_exceeded !=
+                (sender.consecutive_retransmissions() > TCPConfig::MAX_RETX_ATTEMPTS)) {
             std::ostringstream ss;
-            ss << "after " << _ms << "ms passed the TCP Sender reported\n\tconsecutive_retransmissions = "
+            ss << "after " << _ms
+               << "ms passed the TCP Sender reported\n\tconsecutive_retransmissions = "
                << sender.consecutive_retransmissions() << "\nbut it should have been\n\t";
             if (max_retx_exceeded.value()) {
                 ss << "greater than ";
@@ -195,7 +201,8 @@ struct AckReceived : public SenderAction {
     AckReceived(WrappingInt32 ackno) : _ackno(ackno) {}
     std::string description() const {
         std::ostringstream ss;
-        ss << "ack " << _ackno.raw_value() << " winsize " << _window_advertisement.value_or(DEFAULT_TEST_WINDOW);
+        ss << "ack " << _ackno.raw_value() << " winsize "
+           << _window_advertisement.value_or(DEFAULT_TEST_WINDOW);
         return ss.str();
     }
 
@@ -355,10 +362,12 @@ struct ExpectSegment : public SenderExpectation {
             throw SegmentExpectationViolation::violated_field("fin", fin.value(), seg.header().fin);
         }
         if (seqno.has_value() and seg.header().seqno != seqno.value()) {
-            throw SegmentExpectationViolation::violated_field("seqno", seqno.value(), seg.header().seqno);
+            throw SegmentExpectationViolation::violated_field(
+                "seqno", seqno.value(), seg.header().seqno);
         }
         if (ackno.has_value() and seg.header().ackno != ackno.value()) {
-            throw SegmentExpectationViolation::violated_field("ackno", ackno.value(), seg.header().ackno);
+            throw SegmentExpectationViolation::violated_field(
+                "ackno", ackno.value(), seg.header().ackno);
         }
         if (win.has_value() and seg.header().win != win.value()) {
             throw SegmentExpectationViolation::violated_field("win", win.value(), seg.header().win);
@@ -368,12 +377,14 @@ struct ExpectSegment : public SenderExpectation {
                 "payload_size", payload_size.value(), seg.payload().size());
         }
         if (seg.payload().size() > TCPConfig::MAX_PAYLOAD_SIZE) {
-            throw SegmentExpectationViolation("packet has length (" + std::to_string(seg.payload().size()) +
+            throw SegmentExpectationViolation("packet has length (" +
+                                              std::to_string(seg.payload().size()) +
                                               ") greater than the maximum");
         }
         if (data.has_value() and seg.payload().str() != data.value()) {
-            throw SegmentExpectationViolation("payloads differ. expected \"" + data.value() + "\" but found \"" +
-                                              std::string(seg.payload().str()) + "\"");
+            throw SegmentExpectationViolation("payloads differ. expected \"" + data.value() +
+                                              "\" but found \"" + std::string(seg.payload().str()) +
+                                              "\"");
         }
     }
 };
@@ -427,8 +438,8 @@ class TCPSenderTestHarness {
                 std::cerr << "\n\t" << s;
             }
             std::cerr << std::endl << std::endl;
-            throw SenderExpectationViolation("The test \"" + name +
-                                             "\" caused your implementation to throw an exception!");
+            throw SenderExpectationViolation(
+                "The test \"" + name + "\" caused your implementation to throw an exception!");
         }
     }
 };

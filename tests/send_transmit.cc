@@ -21,7 +21,9 @@ int main() {
             cfg.fixed_isn = isn;
 
             TCPSenderTestHarness test{"Three short writes", cfg};
-            test.execute(ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(isn));
+            test.execute(
+                ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(
+                    isn));
             test.execute(AckReceived{WrappingInt32{isn + 1}});
             test.execute(ExpectState{TCPSenderStateSummary::SYN_ACKED});
             test.execute(WriteBytes{"ab"});
@@ -41,7 +43,9 @@ int main() {
             cfg.fixed_isn = isn;
 
             TCPSenderTestHarness test{"Many short writes, continuous acks", cfg};
-            test.execute(ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(isn));
+            test.execute(
+                ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(
+                    isn));
             test.execute(AckReceived{WrappingInt32{isn + 1}});
             test.execute(ExpectState{TCPSenderStateSummary::SYN_ACKED});
             uint32_t max_block_size = 10;
@@ -58,8 +62,9 @@ int main() {
                 test.execute(WriteBytes(string(data)));
                 bytes_sent += block_size;
                 test.execute(ExpectBytesInFlight{block_size});
-                test.execute(
-                    ExpectSegment{}.with_seqno(isn + 1 + uint32_t(bytes_sent - block_size)).with_data(move(data)));
+                test.execute(ExpectSegment{}
+                                 .with_seqno(isn + 1 + uint32_t(bytes_sent - block_size))
+                                 .with_data(move(data)));
                 test.execute(ExpectNoSegment{});
                 test.execute(AckReceived{WrappingInt32{isn + 1 + uint32_t(bytes_sent)}});
             }
@@ -71,7 +76,9 @@ int main() {
             cfg.fixed_isn = isn;
 
             TCPSenderTestHarness test{"Many short writes, ack at end", cfg};
-            test.execute(ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(isn));
+            test.execute(
+                ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(
+                    isn));
             test.execute(AckReceived{WrappingInt32{isn + 1}}.with_win(65000));
             test.execute(ExpectState{TCPSenderStateSummary::SYN_ACKED});
             uint32_t max_block_size = 10;
@@ -88,8 +95,9 @@ int main() {
                 test.execute(WriteBytes(string(data)));
                 bytes_sent += block_size;
                 test.execute(ExpectBytesInFlight{bytes_sent});
-                test.execute(
-                    ExpectSegment{}.with_seqno(isn + 1 + uint32_t(bytes_sent - block_size)).with_data(move(data)));
+                test.execute(ExpectSegment{}
+                                 .with_seqno(isn + 1 + uint32_t(bytes_sent - block_size))
+                                 .with_data(move(data)));
                 test.execute(ExpectNoSegment{});
             }
             test.execute(ExpectBytesInFlight{bytes_sent});
@@ -103,7 +111,9 @@ int main() {
             cfg.fixed_isn = isn;
 
             TCPSenderTestHarness test{"Window filling", cfg};
-            test.execute(ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(isn));
+            test.execute(
+                ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(
+                    isn));
             test.execute(AckReceived{WrappingInt32{isn + 1}}.with_win(3));
             test.execute(ExpectState{TCPSenderStateSummary::SYN_ACKED});
             test.execute(WriteBytes("01234567"));
@@ -132,7 +142,9 @@ int main() {
             cfg.fixed_isn = isn;
 
             TCPSenderTestHarness test{"Immediate writes respect the window", cfg};
-            test.execute(ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(isn));
+            test.execute(
+                ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(
+                    isn));
             test.execute(AckReceived{WrappingInt32{isn + 1}}.with_win(3));
             test.execute(ExpectState{TCPSenderStateSummary::SYN_ACKED});
             test.execute(WriteBytes("01"));

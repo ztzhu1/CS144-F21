@@ -97,7 +97,8 @@ int main() {
             const auto ack_expect = rx_seqno + 1;
             test_4.execute(Tick(1));
 
-            test_4.execute(ExpectOneSegment{}.with_no_flags().with_ack(true).with_ackno(ack_expect));
+            test_4.execute(
+                ExpectOneSegment{}.with_no_flags().with_ack(true).with_ackno(ack_expect));
 
             test_4.execute(Tick(10 * cfg.rt_timeout));
 
@@ -120,7 +121,8 @@ int main() {
             const auto ack_expect = rx_seqno + 1;
             test_5.execute(Tick(1));
             test_5.execute(ExpectLingerTimer{1ul});
-            test_5.execute(ExpectOneSegment{}.with_no_flags().with_ack(true).with_ackno(ack_expect));
+            test_5.execute(
+                ExpectOneSegment{}.with_no_flags().with_ack(true).with_ackno(ack_expect));
 
             test_5.execute(Tick(10 * cfg.rt_timeout - 10));
             test_5.execute(ExpectLingerTimer{uint64_t(10 * cfg.rt_timeout - 9)});
@@ -134,12 +136,14 @@ int main() {
 
             test_5.execute(ExpectState{State::TIME_WAIT});
 
-            // tick the timer and see what happens---a 2nd FIN in TIME_WAIT should reset the wait timer!
-            // (this is an edge case of "throw it away and send another ack" for out-of-window segs)
+            // tick the timer and see what happens---a 2nd FIN in TIME_WAIT should reset the wait
+            // timer! (this is an edge case of "throw it away and send another ack" for
+            // out-of-window segs)
             test_5.execute(Tick(10 * cfg.rt_timeout - 10));
 
-            test_5.execute(ExpectLingerTimer{uint64_t(10 * cfg.rt_timeout - 9)},
-                           "test 5 failed: time_since_last_segment_received() should reset after 2nd FIN");
+            test_5.execute(
+                ExpectLingerTimer{uint64_t(10 * cfg.rt_timeout - 9)},
+                "test 5 failed: time_since_last_segment_received() should reset after 2nd FIN");
 
             test_5.execute(ExpectNoSegment{});
 
@@ -147,7 +151,8 @@ int main() {
             test_5.execute(ExpectState{State::CLOSED});
         }
 
-        // test 6: start in ESTABLISHED, get FIN, get FIN re-tx, send FIN, get ACK, send ACK, time out
+        // test 6: start in ESTABLISHED, get FIN, get FIN re-tx, send FIN, get ACK, send ACK, time
+        // out
         {
             TCPTestHarness test_6 = TCPTestHarness::in_established(cfg);
 
@@ -166,9 +171,10 @@ int main() {
 
             test_6.execute(Tick(2));
 
-            TCPSegment seg2 = test_6.expect_seg(ExpectOneSegment{}.with_fin(true).with_seqno(seg1_hdr.seqno),
+            TCPSegment seg2 =
+                test_6.expect_seg(ExpectOneSegment{}.with_fin(true).with_seqno(seg1_hdr.seqno),
 
-                                                "test 6 failed: bad re-tx FIN");
+                                  "test 6 failed: bad re-tx FIN");
             auto &seg2_hdr = seg2.header();
 
             const WrappingInt32 rx_seqno{1};
@@ -177,7 +183,8 @@ int main() {
             test_6.execute(Tick(1));
 
             test_6.execute(ExpectState{State::CLOSING});
-            test_6.execute(ExpectOneSegment{}.with_ack(true).with_ackno(ack_expect), "test 6 failed: bad ACK for FIN");
+            test_6.execute(ExpectOneSegment{}.with_ack(true).with_ackno(ack_expect),
+                           "test 6 failed: bad ACK for FIN");
 
             test_6.send_ack(ack_expect, seg2_hdr.seqno + 1);
             test_6.execute(Tick(1));
