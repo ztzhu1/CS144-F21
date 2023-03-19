@@ -85,8 +85,25 @@ size_t ByteStream::remaining_capacity() const { return buf_.remaining_size(); }
 /* ------- RingBuffer ------- */
 RingBuffer::RingBuffer(size_t capacity) { init(capacity); }
 
+RingBuffer::RingBuffer(RingBuffer &&that) {
+    capacity_ = that.capacity_;
+    head_ = that.head_;
+    tail_ = that.tail_;
+    inner_data_ = that.inner_data_;
+    full_ = that.full_;
+
+    that.capacity_ = 0;
+    that.head_ = 0;
+    that.tail_ = 0;
+    that.inner_data_ = nullptr;
+    that.full_ = false;
+}
+
 RingBuffer::~RingBuffer() {
-    assert(inner_data_);
+    // assert(inner_data_);
+    if (inner_data_ == nullptr) {
+        return;
+    }
     delete[] inner_data_;
 }
 

@@ -27,6 +27,7 @@ class RingBuffer {
     explicit RingBuffer(size_t capacity);
     RingBuffer(const RingBuffer &) = delete;
     RingBuffer(const RingBuffer &&) = delete;
+    RingBuffer(RingBuffer &&that);
     ~RingBuffer();
     const RingBuffer &operator=(const RingBuffer &) = delete;
 
