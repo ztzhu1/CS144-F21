@@ -3,7 +3,8 @@
 using namespace std;
 
 bool TCPState::operator==(const TCPState &other) const {
-    return _active == other._active and _linger_after_streams_finish == other._linger_after_streams_finish and
+    return _active == other._active and
+           _linger_after_streams_finish == other._linger_after_streams_finish and
            _sender == other._sender and _receiver == other._receiver;
 }
 
@@ -73,7 +74,10 @@ TCPState::TCPState(const TCPState::State state) {
     }
 }
 
-TCPState::TCPState(const TCPSender &sender, const TCPReceiver &receiver, const bool active, const bool linger)
+TCPState::TCPState(const TCPSender &sender,
+                   const TCPReceiver &receiver,
+                   const bool active,
+                   const bool linger)
     : _sender(state_summary(sender))
     , _receiver(state_summary(receiver))
     , _active(active)

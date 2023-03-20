@@ -60,9 +60,15 @@ class LossyFdAdapter {
     //! Passthrough functions to the underlying AdapterT instance
 
     //!@{
-    void set_listening(const bool l) { _adapter.set_listening(l); }      //!< FdAdapterBase::set_listening passthrough
-    const FdAdapterConfig &config() const { return _adapter.config(); }  //!< FdAdapterBase::config passthrough
-    FdAdapterConfig &config_mut() { return _adapter.config_mut(); }      //!< FdAdapterBase::config_mut passthrough
+    void set_listening(const bool l) {
+        _adapter.set_listening(l);
+    }  //!< FdAdapterBase::set_listening passthrough
+    const FdAdapterConfig &config() const {
+        return _adapter.config();
+    }  //!< FdAdapterBase::config passthrough
+    FdAdapterConfig &config_mut() {
+        return _adapter.config_mut();
+    }  //!< FdAdapterBase::config_mut passthrough
     void tick(const size_t ms_since_last_tick) {
         _adapter.tick(ms_since_last_tick);
     }  //!< FdAdapterBase::tick passthrough

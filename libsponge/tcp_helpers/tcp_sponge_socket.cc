@@ -72,23 +72,24 @@ void TCPSpongeSocket<AdaptT>::_initialize_TCP(const TCPConfig &config) {
     //    given to underlying datagram socket)
 
     // rule 1: read from filtered packet stream and dump into TCPConnection
-    _eventloop.add_rule(_datagram_adapter,
-                        Direction::In,
-                        [&] {
-                            auto seg = _datagram_adapter.read();
-                            if (seg) {
-                                _tcp->segment_received(move(seg.value()));
-                            }
+    _eventloop.add_rule(
+        _datagram_adapter,
+        Direction::In,
+        [&] {
+            auto seg = _datagram_adapter.read();
+            if (seg) {
+                _tcp->segment_received(move(seg.value()));
+            }
 
-                            // debugging output:
-                            if (_thread_data.eof() and _tcp.value().bytes_in_flight() == 0 and not _fully_acked) {
-                                cerr << "DEBUG: Outbound stream to "
-                                     << _datagram_adapter.config().destination.to_string()
-                                     << " has been fully acknowledged.\n";
-                                _fully_acked = true;
-                            }
-                        },
-                        [&] { return _tcp->active(); });
+            // debugging output:
+            if (_thread_data.eof() and _tcp.value().bytes_in_flight() == 0 and not _fully_acked) {
+                cerr << "DEBUG: Outbound stream to "
+                     << _datagram_adapter.config().destination.to_string()
+                     << " has been fully acknowledged.\n";
+                _fully_acked = true;
+            }
+        },
+        [&] { return _tcp->active(); });
 
     // rule 2: read from pipe into outbound buffer
     _eventloop.add_rule(
@@ -107,12 +108,16 @@ void TCPSpongeSocket<AdaptT>::_initialize_TCP(const TCPConfig &config) {
                 _outbound_shutdown = true;
 
                 // debugging output:
-                cerr << "DEBUG: Outbound stream to " << _datagram_adapter.config().destination.to_string()
-                     << " finished (" << _tcp.value().bytes_in_flight() << " byte"
+                cerr << "DEBUG: Outbound stream to "
+                     << _datagram_adapter.config().destination.to_string() << " finished ("
+                     << _tcp.value().bytes_in_flight() << " byte"
                      << (_tcp.value().bytes_in_flight() == 1 ? "" : "s") << " still in flight).\n";
             }
         },
-        [&] { return (_tcp->active()) and (not _outbound_shutdown) and (_tcp->remaining_outbound_capacity() > 0); },
+        [&] {
+            return (_tcp->active()) and (not _outbound_shutdown) and
+                   (_tcp->remaining_outbound_capacity() > 0);
+        },
         [&] {
             _tcp->end_input_stream();
             _outbound_shutdown = true;
@@ -137,28 +142,32 @@ void TCPSpongeSocket<AdaptT>::_initialize_TCP(const TCPConfig &config) {
                 _inbound_shutdown = true;
 
                 // debugging output:
-                cerr << "DEBUG: Inbound stream from " << _datagram_adapter.config().destination.to_string()
-                     << " finished " << (inbound.error() ? "with an error/reset.\n" : "cleanly.\n");
+                cerr << "DEBUG: Inbound stream from "
+                     << _datagram_adapter.config().destination.to_string() << " finished "
+                     << (inbound.error() ? "with an error/reset.\n" : "cleanly.\n");
                 if (_tcp.value().state() == TCPState::State::TIME_WAIT) {
-                    cerr << "DEBUG: Waiting for lingering segments (e.g. retransmissions of FIN) from peer...\n";
+                    cerr << "DEBUG: Waiting for lingering segments (e.g. retransmissions of FIN) "
+                            "from peer...\n";
                 }
             }
         },
         [&] {
             return (not _tcp->inbound_stream().buffer_empty()) or
-                   ((_tcp->inbound_stream().eof() or _tcp->inbound_stream().error()) and not _inbound_shutdown);
+                   ((_tcp->inbound_stream().eof() or _tcp->inbound_stream().error()) and
+                    not _inbound_shutdown);
         });
 
     // rule 4: read outbound segments from TCPConnection and send as datagrams
-    _eventloop.add_rule(_datagram_adapter,
-                        Direction::Out,
-                        [&] {
-                            while (not _tcp->segments_out().empty()) {
-                                _datagram_adapter.write(_tcp->segments_out().front());
-                                _tcp->segments_out().pop();
-                            }
-                        },
-                        [&] { return not _tcp->segments_out().empty(); });
+    _eventloop.add_rule(
+        _datagram_adapter,
+        Direction::Out,
+        [&] {
+            while (not _tcp->segments_out().empty()) {
+                _datagram_adapter.write(_tcp->segments_out().front());
+                _tcp->segments_out().pop();
+            }
+        },
+        [&] { return not _tcp->segments_out().empty(); });
 }
 
 //! \brief Call [socketpair](\ref man2::socketpair) and return connected Unix-domain sockets of specified type
@@ -217,8 +226,8 @@ void TCPSpongeSocket<AdaptT>::connect(const TCPConfig &c_tcp, const FdAdapterCon
     const TCPState expected_state = TCPState::State::SYN_SENT;
 
     if (_tcp->state() != expected_state) {
-        throw runtime_error("After TCPConnection::connect(), state was " + _tcp->state().name() + " but expected " +
-                            expected_state.name());
+        throw runtime_error("After TCPConnection::connect(), state was " + _tcp->state().name() +
+                            " but expected " + expected_state.name());
     }
 
     _tcp_loop([&] { return _tcp->state() == TCPState::State::SYN_SENT; });
@@ -230,7 +239,8 @@ void TCPSpongeSocket<AdaptT>::connect(const TCPConfig &c_tcp, const FdAdapterCon
 //! \param[in] c_tcp is the TCPConfig for the TCPConnection
 //! \param[in] c_ad is the FdAdapterConfig for the FdAdapter
 template <typename AdaptT>
-void TCPSpongeSocket<AdaptT>::listen_and_accept(const TCPConfig &c_tcp, const FdAdapterConfig &c_ad) {
+void TCPSpongeSocket<AdaptT>::listen_and_accept(const TCPConfig &c_tcp,
+                                                const FdAdapterConfig &c_ad) {
     if (_tcp) {
         throw runtime_error("listen_and_accept() with TCPConnection already initialized");
     }
@@ -243,7 +253,8 @@ void TCPSpongeSocket<AdaptT>::listen_and_accept(const TCPConfig &c_tcp, const Fd
     cerr << "DEBUG: Listening for incoming connection... ";
     _tcp_loop([&] {
         const auto s = _tcp->state();
-        return (s == TCPState::State::LISTEN or s == TCPState::State::SYN_RCVD or s == TCPState::State::SYN_SENT);
+        return (s == TCPState::State::LISTEN or s == TCPState::State::SYN_RCVD or
+                s == TCPState::State::SYN_SENT);
     });
     cerr << "new connection from " << _datagram_adapter.config().destination.to_string() << ".\n";
 
@@ -281,7 +292,8 @@ template class TCPSpongeSocket<LossyTCPOverUDPSocketAdapter>;
 //! Specialization of TCPSpongeSocket for LossyTCPOverIPv4OverTunFdAdapter
 template class TCPSpongeSocket<LossyTCPOverIPv4OverTunFdAdapter>;
 
-CS144TCPSocket::CS144TCPSocket() : TCPOverIPv4SpongeSocket(TCPOverIPv4OverTunFdAdapter(TunFD("tun144"))) {}
+CS144TCPSocket::CS144TCPSocket()
+    : TCPOverIPv4SpongeSocket(TCPOverIPv4OverTunFdAdapter(TunFD("tun144"))) {}
 
 void CS144TCPSocket::connect(const Address &address) {
     TCPConfig tcp_config;

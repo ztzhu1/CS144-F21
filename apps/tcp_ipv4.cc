@@ -24,15 +24,18 @@ static void show_usage(const char *argv0, const char *msg) {
          << "   -l              Server (listen) mode.                           (client mode)\n"
          << "                   In server mode, <host>:<port> is the address to bind.\n\n"
 
-         << "   -a <addr>       Set source address (client mode only)           " << LOCAL_ADDRESS_DFLT << "\n"
+         << "   -a <addr>       Set source address (client mode only)           "
+         << LOCAL_ADDRESS_DFLT << "\n"
          << "   -s <port>       Set source port (client mode only)              (random)\n\n"
 
-         << "   -w <winsz>      Use a window of <winsz> bytes                   " << TCPConfig::MAX_PAYLOAD_SIZE
+         << "   -w <winsz>      Use a window of <winsz> bytes                   "
+         << TCPConfig::MAX_PAYLOAD_SIZE << "\n\n"
+
+         << "   -t <tmout>      Set rt_timeout to tmout                         "
+         << TCPConfig::TIMEOUT_DFLT << "\n\n"
+
+         << "   -d <tundev>     Connect to tun <tundev>                         " << TUN_DFLT
          << "\n\n"
-
-         << "   -t <tmout>      Set rt_timeout to tmout                         " << TCPConfig::TIMEOUT_DFLT << "\n\n"
-
-         << "   -d <tundev>     Connect to tun <tundev>                         " << TUN_DFLT << "\n\n"
 
          << "   -Lu <loss>      Set uplink loss to <rate> (float in 0..1)       (no loss)\n"
          << "   -Ld <loss>      Set downlink loss to <rate> (float in 0..1)     (no loss)\n\n"
@@ -97,16 +100,16 @@ static tuple<TCPConfig, FdAdapterConfig, bool, char *> get_config(int argc, char
             check_argc(argc, argv, curr, "ERROR: -Lu requires one argument.");
             float lossrate = strtof(argv[curr + 1], nullptr);
             using LossRateUpT = decltype(c_filt.loss_rate_up);
-            c_filt.loss_rate_up =
-                static_cast<LossRateUpT>(static_cast<float>(numeric_limits<LossRateUpT>::max()) * lossrate);
+            c_filt.loss_rate_up = static_cast<LossRateUpT>(
+                static_cast<float>(numeric_limits<LossRateUpT>::max()) * lossrate);
             curr += 2;
 
         } else if (strncmp("-Ld", argv[curr], 3) == 0) {
             check_argc(argc, argv, curr, "ERROR: -Lu requires one argument.");
             float lossrate = strtof(argv[curr + 1], nullptr);
             using LossRateDnT = decltype(c_filt.loss_rate_dn);
-            c_filt.loss_rate_dn =
-                static_cast<LossRateDnT>(static_cast<float>(numeric_limits<LossRateDnT>::max()) * lossrate);
+            c_filt.loss_rate_dn = static_cast<LossRateDnT>(
+                static_cast<float>(numeric_limits<LossRateDnT>::max()) * lossrate);
             curr += 2;
 
         } else if (strncmp("-h", argv[curr], 3) == 0) {

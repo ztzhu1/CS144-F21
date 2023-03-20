@@ -152,7 +152,8 @@ int main(int argc, char **argv) {
             && dlt != DLT_LINUX_SLL2
 #endif
         ) {
-            cout << "\nError: unsupported datalink type " << pcap_datalink_val_to_description(dlt) << endl;
+            cout << "\nError: unsupported datalink type " << pcap_datalink_val_to_description(dlt)
+                 << endl;
             exit(1);
         }
         cout << " (type: " << pcap_datalink_val_to_description(dlt) << ")\n";
@@ -245,7 +246,8 @@ int main(int argc, char **argv) {
 
         // now actually parse the packet
         string src{}, dst{};
-        if ((start_off = process_ipv4_ipv6(pkt_hdr->caplen - hdr_off, pkt_data + hdr_off, src, dst)) < 0) {
+        if ((start_off =
+                 process_ipv4_ipv6(pkt_hdr->caplen - hdr_off, pkt_data + hdr_off, src, dst)) < 0) {
             cerr << "Error parsing IPv4/IPv6 packet. Skipping.\n";
             continue;
         }
@@ -264,7 +266,8 @@ int main(int argc, char **argv) {
             const TCPHeader &tcp_hdr = seg.header();
             uint32_t seqlen = seg.length_in_sequence_space();
 
-            cout << src << ':' << tcp_hdr.sport << " > " << dst << ':' << tcp_hdr.dport << "\n    Flags ["
+            cout << src << ':' << tcp_hdr.sport << " > " << dst << ':' << tcp_hdr.dport
+                 << "\n    Flags ["
 
                  << (tcp_hdr.urg ? "U" : "") << (tcp_hdr.psh ? "P" : "") << (tcp_hdr.rst ? "R" : "")
                  << (tcp_hdr.syn ? "S" : "") << (tcp_hdr.fin ? "F" : "") << (tcp_hdr.ack ? "." : "")
@@ -278,7 +281,8 @@ int main(int argc, char **argv) {
                 cout << ':' << (tcp_hdr.seqno + seqlen);
             }
 
-            cout << " ack " << tcp_hdr.ackno << " win " << tcp_hdr.win << " length " << payload_len << endl;
+            cout << " ack " << tcp_hdr.ackno << " win " << tcp_hdr.win << " length " << payload_len
+                 << endl;
         }
         hexdump(payload.data(), payload.size(), 8);
     }

@@ -42,7 +42,8 @@ optional<TCPSegment> TCPOverIPv4Adapter::unwrap_tcp_in_ip(const InternetDatagram
 
     // is the payload a valid TCP segment?
     TCPSegment tcp_seg;
-    if (ParseResult::NoError != tcp_seg.parse(ip_dgram.payload(), ip_dgram.header().pseudo_cksum())) {
+    if (ParseResult::NoError !=
+        tcp_seg.parse(ip_dgram.payload(), ip_dgram.header().pseudo_cksum())) {
         return {};
     }
 
@@ -54,8 +55,10 @@ optional<TCPSegment> TCPOverIPv4Adapter::unwrap_tcp_in_ip(const InternetDatagram
     // should we target this source addr/port (and use its destination addr as our source) in reply?
     if (listening()) {
         if (tcp_seg.header().syn and not tcp_seg.header().rst) {
-            config_mutable().source = {inet_ntoa({htobe32(ip_dgram.header().dst)}), config().source.port()};
-            config_mutable().destination = {inet_ntoa({htobe32(ip_dgram.header().src)}), tcp_seg.header().sport};
+            config_mutable().source = {inet_ntoa({htobe32(ip_dgram.header().dst)}),
+                                       config().source.port()};
+            config_mutable().destination = {inet_ntoa({htobe32(ip_dgram.header().src)}),
+                                            tcp_seg.header().sport};
             set_listening(false);
         } else {
             return {};
@@ -81,7 +84,8 @@ InternetDatagram TCPOverIPv4Adapter::wrap_tcp_in_ip(TCPSegment &seg) {
     InternetDatagram ip_dgram;
     ip_dgram.header().src = config().source.ipv4_numeric();
     ip_dgram.header().dst = config().destination.ipv4_numeric();
-    ip_dgram.header().len = ip_dgram.header().hlen * 4 + seg.header().doff * 4 + seg.payload().size();
+    ip_dgram.header().len =
+        ip_dgram.header().hlen * 4 + seg.header().doff * 4 + seg.payload().size();
 
     // set payload, calculating TCP checksum using information from IP header
     ip_dgram.payload() = seg.serialize(ip_dgram.header().pseudo_cksum());

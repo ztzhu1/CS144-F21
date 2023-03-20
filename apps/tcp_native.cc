@@ -22,11 +22,12 @@ int main(int argc, char **argv) {
         // in client mode, connect; in server mode, accept exactly one connection
         auto socket = [&] {
             if (server_mode) {
-                TCPSocket listening_socket;                 // create a TCP socket
-                listening_socket.set_reuseaddr();           // reuse the server's address as soon as the program quits
+                TCPSocket listening_socket;  // create a TCP socket
+                listening_socket
+                    .set_reuseaddr();  // reuse the server's address as soon as the program quits
                 listening_socket.bind({argv[2], argv[3]});  // bind to specified address
-                listening_socket.listen();                  // mark the socket as listening for incoming connections
-                return listening_socket.accept();           // accept exactly one connection
+                listening_socket.listen();  // mark the socket as listening for incoming connections
+                return listening_socket.accept();  // accept exactly one connection
             }
             TCPSocket connecting_socket;
             connecting_socket.connect({argv[1], argv[2]});

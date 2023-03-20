@@ -40,12 +40,14 @@ int main() {
 
             TCPSegment tcp_seg;
 
-            if (tcp_seg.parse(ip_dgram.payload(), ip_dgram.header().pseudo_cksum()) != ParseResult::NoError) {
+            if (tcp_seg.parse(ip_dgram.payload(), ip_dgram.header().pseudo_cksum()) !=
+                ParseResult::NoError) {
                 cout << "failed.\n";
                 continue;
             }
 
-            cout << "success! payload len=" << tcp_seg.payload().size() << ", TCP header contents:\n";
+            cout << "success! payload len=" << tcp_seg.payload().size()
+                 << ", TCP header contents:\n";
             cout << tcp_seg.header().to_string() << endl;
         }
     } catch (const exception &e) {

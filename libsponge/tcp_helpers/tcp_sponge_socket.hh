@@ -45,13 +45,17 @@ class TCPSpongeSocket : public LocalStreamSocket {
     std::thread _tcp_thread{};
 
     //! Construct LocalStreamSocket fds from socket pair, initialize eventloop
-    TCPSpongeSocket(std::pair<FileDescriptor, FileDescriptor> data_socket_pair, AdaptT &&datagram_interface);
+    TCPSpongeSocket(std::pair<FileDescriptor, FileDescriptor> data_socket_pair,
+                    AdaptT &&datagram_interface);
 
-    std::atomic_bool _abort{false};  //!< Flag used by the owner to force the TCPConnection thread to shut down
+    std::atomic_bool _abort{
+        false};  //!< Flag used by the owner to force the TCPConnection thread to shut down
 
-    bool _inbound_shutdown{false};  //!< Has TCPSpongeSocket shut down the incoming data to the owner?
+    bool _inbound_shutdown{
+        false};  //!< Has TCPSpongeSocket shut down the incoming data to the owner?
 
-    bool _outbound_shutdown{false};  //!< Has the owner shut down the outbound data to the TCP connection?
+    bool _outbound_shutdown{
+        false};  //!< Has the owner shut down the outbound data to the TCP connection?
 
     bool _fully_acked{false};  //!< Has the outbound data been fully acknowledged by the peer?
 

@@ -23,10 +23,11 @@ static void show_usage(const char *argv0, const char *msg) {
          << "   -l              Server (listen) mode.                           (client mode)\n"
          << "                   In server mode, <host>:<port> is the address to bind.\n\n"
 
-         << "   -w <winsz>      Use a window of <winsz> bytes                   " << TCPConfig::MAX_PAYLOAD_SIZE
-         << "\n\n"
+         << "   -w <winsz>      Use a window of <winsz> bytes                   "
+         << TCPConfig::MAX_PAYLOAD_SIZE << "\n\n"
 
-         << "   -t <tmout>      Set rt_timeout to tmout                         " << TCPConfig::TIMEOUT_DFLT << "\n\n"
+         << "   -t <tmout>      Set rt_timeout to tmout                         "
+         << TCPConfig::TIMEOUT_DFLT << "\n\n"
 
          << "   -Lu <loss>      Set uplink loss to <rate> (float in 0..1)       (no loss)\n"
          << "   -Ld <loss>      Set downlink loss to <rate> (float in 0..1)     (no loss)\n\n"
@@ -72,16 +73,16 @@ static tuple<TCPConfig, FdAdapterConfig, bool> get_config(int argc, char **argv)
             check_argc(argc, argv, curr, "ERROR: -Lu requires one argument.");
             float lossrate = strtof(argv[curr + 1], nullptr);
             using LossRateUpT = decltype(c_filt.loss_rate_up);
-            c_filt.loss_rate_up =
-                static_cast<LossRateUpT>(static_cast<float>(numeric_limits<LossRateUpT>::max()) * lossrate);
+            c_filt.loss_rate_up = static_cast<LossRateUpT>(
+                static_cast<float>(numeric_limits<LossRateUpT>::max()) * lossrate);
             curr += 2;
 
         } else if (strncmp("-Ld", argv[curr], 3) == 0) {
             check_argc(argc, argv, curr, "ERROR: -Lu requires one argument.");
             float lossrate = strtof(argv[curr + 1], nullptr);
             using LossRateDnT = decltype(c_filt.loss_rate_dn);
-            c_filt.loss_rate_dn =
-                static_cast<LossRateDnT>(static_cast<float>(numeric_limits<LossRateDnT>::max()) * lossrate);
+            c_filt.loss_rate_dn = static_cast<LossRateDnT>(
+                static_cast<float>(numeric_limits<LossRateDnT>::max()) * lossrate);
             curr += 2;
 
         } else if (strncmp("-h", argv[curr], 3) == 0) {
@@ -89,7 +90,9 @@ static tuple<TCPConfig, FdAdapterConfig, bool> get_config(int argc, char **argv)
             exit(0);
 
         } else {
-            show_usage(argv[0], std::string("ERROR: unrecognized option " + std::string(argv[curr])).c_str());
+            show_usage(
+                argv[0],
+                std::string("ERROR: unrecognized option " + std::string(argv[curr])).c_str());
             exit(1);
         }
     }
@@ -118,7 +121,8 @@ int main(int argc, char **argv) {
         if (listen) {
             udp_sock.bind(c_filt.source);
         }
-        LossyTCPOverUDPSpongeSocket tcp_socket(LossyTCPOverUDPSocketAdapter(TCPOverUDPSocketAdapter(move(udp_sock))));
+        LossyTCPOverUDPSpongeSocket tcp_socket(
+            LossyTCPOverUDPSocketAdapter(TCPOverUDPSocketAdapter(move(udp_sock))));
         if (listen) {
             tcp_socket.listen_and_accept(c_fsm, c_filt);
         } else {

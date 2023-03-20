@@ -6,7 +6,8 @@
 //! \brief [IPv4](\ref rfc::rfc791) Internet datagram header
 //! \note IP options are not supported
 struct IPv4Header {
-    static constexpr size_t LENGTH = 20;         //!< [IPv4](\ref rfc::rfc791) header length, not including options
+    static constexpr size_t LENGTH =
+        20;  //!< [IPv4](\ref rfc::rfc791) header length, not including options
     static constexpr uint8_t DEFAULT_TTL = 128;  //!< A reasonable default TTL value
     static constexpr uint8_t PROTO_TCP = 6;      //!< Protocol number for [tcp](\ref rfc::rfc793)
 
