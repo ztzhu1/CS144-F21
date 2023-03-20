@@ -14,9 +14,11 @@
 //! the acknowledgment number and window size to advertise back to the
 //! remote TCPSender.
 class TCPReceiver {
-    uint64_t get_abs_seqno(WrappingInt32 seqno){return unwrap(seqno, isn_, checkpoint_);}
+  public:
+    uint64_t get_abs_ackno() const;
+    uint64_t get_abs_seqno(WrappingInt32 seqno) { return unwrap(seqno, isn_, checkpoint_); }
     uint64_t get_stream_index(WrappingInt32 seqno, bool update_cp);
-    uint64_t stream_index_to_abs_seqno(uint64_t stream_index){return stream_index+1;}
+    uint64_t stream_index_to_abs_seqno(uint64_t stream_index) { return stream_index + 1; }
 
     //! Our data structure for re-assembling bytes.
     StreamReassembler reassembler_;

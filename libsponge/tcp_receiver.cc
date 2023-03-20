@@ -47,21 +47,22 @@ void TCPReceiver::segment_received(const TCPSegment &seg) {
         }
     }
 
-    /* push_segment */
-    reassembler_.push_substring(seg.payload().copy(), stream_index, header.fin);
+    /* push_segment inside the window */
+    auto win_begin = get_abs_ackno();
+    auto win_end = win_begin + window_size();
+    if (stream_index + 1 + seg.payload().size() <= win_end) {
+        reassembler_.push_substring(seg.payload().copy(), stream_index, header.fin);
+    } else if (stream_index + 1 < win_end) {
+        reassembler_.push_substring(
+            seg.payload().copy().substr(0, win_end - (stream_index + 1)), stream_index, header.fin);
+    }
 }
 
 optional<WrappingInt32> TCPReceiver::ackno() const {
     if (!received_syn_) {
         return nullopt;
     }
-    size_t bytes_written = reassembler_.stream_out().bytes_written();
-    size_t abs_ackno = 1 + bytes_written;  // syn | bytes
-    // check fin
-    if (received_fin_ && abs_ackno == abs_fin_seqno_) {
-        ++abs_ackno;
-    }
-    return wrap(abs_ackno, isn_);
+    return wrap(get_abs_ackno(), isn_);
 }
 
 size_t TCPReceiver::window_size() const {
@@ -69,6 +70,16 @@ size_t TCPReceiver::window_size() const {
 }
 
 /* -------- private -------- */
+
+uint64_t TCPReceiver::get_abs_ackno() const {
+    size_t bytes_written = reassembler_.stream_out().bytes_written();
+    size_t abs_ackno = 1 + bytes_written;  // syn | bytes
+    // check fin
+    if (received_fin_ && abs_ackno == abs_fin_seqno_) {
+        ++abs_ackno;
+    }
+    return abs_ackno;
+}
 
 uint64_t TCPReceiver::get_stream_index(WrappingInt32 seqno, bool update_cp) {
     uint64_t abs_seqno = get_abs_seqno(seqno);

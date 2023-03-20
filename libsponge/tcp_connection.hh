@@ -9,17 +9,37 @@
 //! \brief A complete endpoint of a TCP connection
 class TCPConnection {
   private:
-    TCPConfig _cfg;
-    TCPReceiver _receiver{_cfg.recv_capacity};
-    TCPSender _sender{_cfg.send_capacity, _cfg.rt_timeout, _cfg.fixed_isn};
+  public:
+    void set_win(TCPHeader &header);
+    void send_rst();
+    void send_all();
+    void end_cleanly();
+    void end_uncleanly();
+    void try_to_end_cleanly();
+    void check_not_need_to_linger();
+    bool satisfy_prereq_1();
+    bool satisfy_prereq_2();
+    bool satisfy_prereq_3();
+    bool satisfy_prereq_123();
+
+    TCPConfig cfg_;
+    TCPReceiver receiver_{cfg_.recv_capacity};
+    TCPSender sender_{cfg_.send_capacity, cfg_.rt_timeout, cfg_.fixed_isn};
 
     //! outbound queue of segments that the TCPConnection wants sent
-    std::queue<TCPSegment> _segments_out{};
+    std::queue<TCPSegment> segments_out_{};
 
     //! Should the TCPConnection stay active (and keep ACKing)
-    //! for 10 * _cfg.rt_timeout milliseconds after both streams have ended,
+    //! for 10 * cfg_.rt_timeout milliseconds after both streams have ended,
     //! in case the remote TCPConnection doesn't know we've received its whole stream?
-    bool _linger_after_streams_finish{true};
+    bool linger_after_streams_finish_{true};
+
+    bool linger_begin_{false};
+    size_t time_since_last_segment_received_{0};
+    bool active_{true};
+    bool sent_fin_{false};
+    bool fin_acked_{false};
+    uint64_t abs_fin_seqno_{0};
 
   public:
     //! \name "Input" interface for the writer
@@ -43,7 +63,7 @@ class TCPConnection {
     //!@{
 
     //! \brief The inbound byte stream received from the peer
-    ByteStream &inbound_stream() { return _receiver.stream_out(); }
+    ByteStream &inbound_stream() { return receiver_.stream_out(); }
     //!@}
 
     //! \name Accessors used for testing
@@ -56,7 +76,7 @@ class TCPConnection {
     //! \brief Number of milliseconds since the last segment was received
     size_t time_since_last_segment_received() const;
     //!< \brief summarize the state of the sender, receiver, and the connection
-    TCPState state() const { return {_sender, _receiver, active(), _linger_after_streams_finish}; };
+    TCPState state() const { return {sender_, receiver_, active(), linger_after_streams_finish_}; };
     //!@}
 
     //! \name Methods for the owner or operating system to call
@@ -72,7 +92,7 @@ class TCPConnection {
     //! \note The owner or operating system will dequeue these and
     //! put each one into the payload of a lower-layer datagram (usually Internet datagrams (IP),
     //! but could also be user datagrams (UDP) or any other kind).
-    std::queue<TCPSegment> &segments_out() { return _segments_out; }
+    std::queue<TCPSegment> &segments_out() { return segments_out_; }
 
     //! \brief Is the connection still alive in any way?
     //! \returns `true` if either stream is still running or if the TCPConnection is lingering
@@ -81,7 +101,7 @@ class TCPConnection {
     //!@}
 
     //! Construct a new connection from a configuration
-    explicit TCPConnection(const TCPConfig &cfg) : _cfg{cfg} {}
+    explicit TCPConnection(const TCPConfig &cfg) : cfg_{cfg} {}
 
     //! \name construction and destruction
     //! moving is allowed; copying is disallowed; default construction not possible

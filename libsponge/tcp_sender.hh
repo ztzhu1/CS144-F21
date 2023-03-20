@@ -42,7 +42,6 @@ class TCPSender {
         assert(next_seqno_ > 0);
         return next_seqno_ - 1;
     };
-    uint64_t get_abs_seqno(WrappingInt32 seqno) { return unwrap(seqno, isn_, checkpoint_); }
     void begin_timing();
     void reset_timer();
     void update_timer_after_timeout();
@@ -131,6 +130,8 @@ class TCPSender {
     //! \brief relative seqno for the next byte to be sent
     WrappingInt32 next_seqno() const { return wrap(next_seqno_, isn_); }
     //!@}
+
+    uint64_t get_abs_seqno(WrappingInt32 seqno) { return unwrap(seqno, isn_, checkpoint_); }
 };
 
 #endif  // SPONGE_LIBSPONGE_TCP_SENDER_HH

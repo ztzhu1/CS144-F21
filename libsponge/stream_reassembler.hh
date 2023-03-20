@@ -27,8 +27,7 @@ class StreamReassembler {
         const DataInfo &operator=(DataInfo &) = delete;
         const DataInfo &operator=(const DataInfo &) = delete;
 
-        DataInfo(std::string_view data, size_t index)
-            : data_{data}, index_(index) {}
+        DataInfo(std::string_view data, size_t index) : data_{data}, index_(index) {}
 
         DataInfo(DataInfo &&that) {
             data_ = std::move(that.data_);

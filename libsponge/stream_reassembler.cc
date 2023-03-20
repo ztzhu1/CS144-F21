@@ -115,7 +115,8 @@ void StreamReassembler::insert_without_overlap(std::string_view data, size_t ind
         auto slice_begin = needed_range.begin - index;
         auto slice_size = needed_range.size();
         assert(slice_size != 0);
-        datas_.emplace(needed_range.begin, DataInfo{data.substr(slice_begin, slice_size), needed_range.begin});
+        datas_.emplace(needed_range.begin,
+                       DataInfo{data.substr(slice_begin, slice_size), needed_range.begin});
     }
 
     /* If the space is not enough, we need to discard the exceeded part. */
