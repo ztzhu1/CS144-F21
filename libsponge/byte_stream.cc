@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cstring>
+#include <iostream>
 
 // Dummy implementation of a flow-controlled in-memory byte stream.
 
@@ -44,6 +45,7 @@ void ByteStream::pop_output(const size_t len) {
     buf_.pop_front(len);
     bytes_read_ += len;
     if (buffer_empty() && input_ended_) {
+        assert(bytes_read_ == bytes_written_);
         eof_ = true;
     }
 }
@@ -52,9 +54,9 @@ void ByteStream::pop_output(const size_t len) {
 //! \param[in] len bytes will be popped and returned
 //! \returns a string
 std::string ByteStream::read(const size_t len) {
-    // if (eof_) {
-    //     return "";
-    // }
+    if (eof_) {
+        return "";
+    }
     assert(len <= buffer_size());
     auto result = peek_output(len);
     pop_output(len);
@@ -134,7 +136,7 @@ void RingBuffer::push_back(const std::string &data, const size_t len) {
         std::memcpy(static_cast<void *>(inner_data_ + tail_), static_cast<void *>(data_ptr), len);
     }
     tail_ = (tail_ + len) % capacity_;
-    if (tail_ == head_) {
+    if (tail_ == head_ && len > 0) {
         full_ = true;
     }
 }
