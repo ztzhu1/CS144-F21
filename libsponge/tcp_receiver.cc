@@ -1,6 +1,7 @@
 #include "tcp_receiver.hh"
 
 #include <cassert>
+#include <iostream>
 
 // Dummy implementation of a TCP receiver
 
@@ -54,7 +55,7 @@ void TCPReceiver::segment_received(const TCPSegment &seg) {
         reassembler_.push_substring(seg.payload().copy(), stream_index, header.fin);
     } else if (stream_index + 1 < win_end) {
         reassembler_.push_substring(
-            seg.payload().copy().substr(0, win_end - (stream_index + 1)), stream_index, header.fin);
+            seg.payload().copy().substr(0, win_end - (stream_index + 1)), stream_index, false);
     }
 }
 

@@ -19,6 +19,7 @@
 //! segments if the retransmission timer expires.
 class TCPSender {
   private:
+  public:
     class OutstandingSegment {
       public:
         TCPSegment seg_;

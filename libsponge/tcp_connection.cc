@@ -26,21 +26,31 @@ size_t TCPConnection::time_since_last_segment_received() const {
 }
 
 void TCPConnection::segment_received(const TCPSegment &seg) {
-    time_since_last_segment_received_ = 0;
+    if(!active_){
+        return;
+    }
 
     auto const &header = seg.header();
+
+    if (!receiver_.ackno().has_value() && !header.syn) {
+        if (sent_syn_ &&
+            sender_.get_abs_seqno(header.ackno) ==
+                sender_.get_abs_seqno(cfg_.fixed_isn.value()) + 1 &&
+            header.rst) {
+            end_uncleanly();
+        }
+        return;
+    }
+    time_since_last_segment_received_ = 0;
+
     if (header.rst) {
         cerr << "Warning: Received rst, unclean shutdown of TCPConnection\n";
         end_uncleanly();
         return;
     }
 
-    /* give the segmet to receiver */
+    /* give the segment to receiver */
     receiver_.segment_received(seg);
-    // try_to_active();
-    if (!receiver_.ackno().has_value()) {
-        return;
-    }
     check_not_need_to_linger();
 
     /* respond to "keep-alive" segment */
@@ -78,21 +88,26 @@ void TCPConnection::segment_received(const TCPSegment &seg) {
 bool TCPConnection::active() const { return active_; }
 
 size_t TCPConnection::write(const string &data) {
+    assert(active_);
     size_t len = sender_.stream_in().write(data);
     sender_.fill_window();
     send_all();
+    try_to_end_cleanly();
 
     return len;
 }
 
 //! \param[in] ms_since_last_tick number of milliseconds since the last call to this method
 void TCPConnection::tick(const size_t ms_since_last_tick) {
+    if (!active_) {
+        return;
+    }
     time_since_last_segment_received_ += ms_since_last_tick;
 
     sender_.tick(ms_since_last_tick);
-    if (sender_.consecutive_retransmissions() > TCPConfig::MAX_RETX_ATTEMPTS) {
+    if (sender_.consecutive_retransmissions() > cfg_.MAX_RETX_ATTEMPTS) {
         send_rst();
-        cerr << "Warning: Sent rst, unclean shutdown of TCPConnection\n";
+        cerr << "Warning: , retransmission > " << cfg_.MAX_RETX_ATTEMPTS << ", unclean shutdown\n";
         end_uncleanly();
         return;
     }
@@ -103,16 +118,21 @@ void TCPConnection::tick(const size_t ms_since_last_tick) {
             linger_after_streams_finish_ = false;
             end_cleanly();
         }
+    } else {
+        try_to_end_cleanly();
     }
 }
 
 void TCPConnection::end_input_stream() {
+    assert(active_);
     sender_.stream_in().end_input();
     sender_.fill_window();
     send_all();
+    try_to_end_cleanly();
 }
 
 void TCPConnection::connect() {
+    assert(active_);
     auto &segs_out = sender_.segments_out();
     assert(segs_out.empty());
     assert(segments_out_.empty());
@@ -124,6 +144,7 @@ void TCPConnection::connect() {
 
     segments_out_.push(seg_out);
     segs_out.pop();
+    sent_syn_ = true;
     assert(segs_out.empty());
 }
 
@@ -153,7 +174,7 @@ void TCPConnection::set_win(TCPHeader &header) {
 }
 
 void TCPConnection::send_rst() {
-    if(!receiver_.ackno().has_value()){
+    if (!receiver_.ackno().has_value()) {
         return;
     }
     TCPSegment empty_seg;
@@ -170,21 +191,28 @@ void TCPConnection::send_rst() {
 }
 
 void TCPConnection::send_all() {
-    if (!receiver_.ackno().has_value()) {
-        return;
-    }
     auto &segs_out = sender_.segments_out();
     while (!segs_out.empty()) {
+        // char buf[200];
+        // sprintf(buf, "\x1b[1;31m-------\x1b[0m\n");
+        // cerr << buf;
         auto &seg_out = segs_out.front();
         auto &out_header = seg_out.header();
+        /* record syn */
+        if (out_header.syn) {
+            sent_syn_ = true;
+        }
+        assert(sent_syn_);
         /* set out_header */
-        out_header.ack = true;
-        assert(receiver_.ackno().has_value());
-        out_header.ackno = receiver_.ackno().value();
+        if (receiver_.ackno().has_value()) {
+            out_header.ack = true;
+            out_header.ackno = receiver_.ackno().value();
+        }
         set_win(out_header);
         /* record fin */
         if (out_header.fin) {
             assert(sender_.stream_in().eof());
+            assert(sender_.stream_in().bytes_read() == sender_.stream_in().bytes_written());
             sent_fin_ = true;
             abs_fin_seqno_ = 1 + sender_.stream_in().bytes_read() + 1 - 1;  // syn|data|fin
         }
@@ -217,13 +245,17 @@ void TCPConnection::end_uncleanly() {
 /**
  * Receiver has received `fin` and has reassembled all segments.
  */
-bool TCPConnection::satisfy_prereq_1() { return receiver_.stream_out().eof(); }
+bool TCPConnection::satisfy_prereq_1() {
+    return receiver_.stream_out().eof() && receiver_.unassembled_bytes() == 0;
+}
 
 /**
  * Application finished inputting and sender has sent
  * all the segments and fin (may be not acknowledged yet).
  */
-bool TCPConnection::satisfy_prereq_2() { return sender_.stream_in().eof() && sent_fin_; }
+bool TCPConnection::satisfy_prereq_2() {
+    return sender_.stream_in().eof() && sent_fin_ && sender_.bytes_in_flight() == 0;
+}
 
 /**
  * The peer acknowledged fin.

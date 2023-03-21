@@ -37,6 +37,7 @@ class TCPConnection {
     bool linger_begin_{false};
     size_t time_since_last_segment_received_{0};
     bool active_{true};
+    bool sent_syn_{false};
     bool sent_fin_{false};
     bool fin_acked_{false};
     uint64_t abs_fin_seqno_{0};
