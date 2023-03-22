@@ -55,7 +55,7 @@ class ByteStream {
 
     void push_str(const std::string &data, const size_t len);
 
-    bool _error{};  //!< Flag indicating that the stream suffered an error.
+    bool error_{};  //!< Flag indicating that the stream suffered an error.
     size_t bytes_written_{0};
     size_t bytes_read_{0};
     RingBuffer buf_{};
@@ -81,7 +81,7 @@ class ByteStream {
     void end_input();
 
     //! Indicate that the stream suffered an error.
-    void set_error() { _error = true; }
+    void set_error() { error_ = true; }
     //!@}
 
     //! \name "Output" interface for the reader
@@ -102,7 +102,7 @@ class ByteStream {
     bool input_ended() const;
 
     //! \returns `true` if the stream has suffered an error
-    bool error() const { return _error; }
+    bool error() const { return error_; }
 
     //! \returns the maximum amount that can currently be read from the stream
     size_t buffer_size() const;
