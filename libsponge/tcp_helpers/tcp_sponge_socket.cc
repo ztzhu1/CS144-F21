@@ -325,10 +325,11 @@ EthernetAddress random_private_ethernet_address() {
 }
 
 FullStackSocket::FullStackSocket()
-    : TCPOverIPv4OverEthernetSpongeSocket(TCPOverIPv4OverEthernetAdapter(TapFD("tap10"),
-                                                                         random_private_ethernet_address(),
-                                                                         Address(LOCAL_TAP_IP_ADDRESS, "0"),
-                                                                         Address(LOCAL_TAP_NEXT_HOP_ADDRESS, "0"))) {}
+    : TCPOverIPv4OverEthernetSpongeSocket(
+          TCPOverIPv4OverEthernetAdapter(TapFD("tap10"),
+                                         random_private_ethernet_address(),
+                                         Address(LOCAL_TAP_IP_ADDRESS, "0"),
+                                         Address(LOCAL_TAP_NEXT_HOP_ADDRESS, "0"))) {}
 
 void FullStackSocket::connect(const Address &address) {
     TCPConfig tcp_config;

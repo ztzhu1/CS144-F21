@@ -22,16 +22,20 @@ static void show_usage(const char *argv0, const char *msg) {
          << "   Option                                                          Default\n"
          << "   --                                                              --\n\n"
 
-         << "   -a <addr>       Set IP source address (client mode only)        " << LOCAL_ADDRESS_DFLT << "\n"
+         << "   -a <addr>       Set IP source address (client mode only)        "
+         << LOCAL_ADDRESS_DFLT << "\n"
          << "   -s <port>       Set TCP source port (client mode only)          (random)\n\n"
-         << "   -n <addr>       Set IP next-hop address                         " << GATEWAY_DFLT << "\n"
+         << "   -n <addr>       Set IP next-hop address                         " << GATEWAY_DFLT
+         << "\n"
 
-         << "   -w <winsz>      Use a window of <winsz> bytes                   " << TCPConfig::MAX_PAYLOAD_SIZE
+         << "   -w <winsz>      Use a window of <winsz> bytes                   "
+         << TCPConfig::MAX_PAYLOAD_SIZE << "\n\n"
+
+         << "   -t <tmout>      Set rt_timeout to tmout                         "
+         << TCPConfig::TIMEOUT_DFLT << "\n\n"
+
+         << "   -d <tapdev>     Connect to tap <tapdev>                         " << TAP_DFLT
          << "\n\n"
-
-         << "   -t <tmout>      Set rt_timeout to tmout                         " << TCPConfig::TIMEOUT_DFLT << "\n\n"
-
-         << "   -d <tapdev>     Connect to tap <tapdev>                         " << TAP_DFLT << "\n\n"
 
          << "   -h              Show this message.\n\n";
 
@@ -116,18 +120,21 @@ int main(int argc, char **argv) {
             return EXIT_FAILURE;
         }
 
-        // choose a random local Ethernet address (and make sure it's private, i.e. not owned by a manufacturer)
+        // choose a random local Ethernet address (and make sure it's private, i.e. not owned by a
+        // manufacturer)
         EthernetAddress local_ethernet_address;
         for (auto &byte : local_ethernet_address) {
             byte = random_device()();  // use a random local Ethernet address
         }
-        local_ethernet_address.at(0) |= 0x02;  // "10" in last two binary digits marks a private Ethernet address
+        local_ethernet_address.at(0) |=
+            0x02;  // "10" in last two binary digits marks a private Ethernet address
         local_ethernet_address.at(0) &= 0xfe;
 
         auto [c_fsm, c_filt, next_hop, tap_dev_name] = get_config(argc, argv);
 
-        TCPOverIPv4OverEthernetSpongeSocket tcp_socket(TCPOverIPv4OverEthernetAdapter(
-            TCPOverIPv4OverEthernetAdapter(TapFD(tap_dev_name), local_ethernet_address, c_filt.source, next_hop)));
+        TCPOverIPv4OverEthernetSpongeSocket tcp_socket(
+            TCPOverIPv4OverEthernetAdapter(TCPOverIPv4OverEthernetAdapter(
+                TapFD(tap_dev_name), local_ethernet_address, c_filt.source, next_hop)));
 
         tcp_socket.connect(c_fsm, c_filt);
 

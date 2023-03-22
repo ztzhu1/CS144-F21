@@ -40,14 +40,15 @@ ParseResult ARPMessage::parse(const Buffer buffer) {
 
 bool ARPMessage::supported() const {
     return hardware_type == TYPE_ETHERNET and protocol_type == EthernetHeader::TYPE_IPv4 and
-           hardware_address_size == sizeof(EthernetHeader::src) and protocol_address_size == sizeof(IPv4Header::src) and
+           hardware_address_size == sizeof(EthernetHeader::src) and
+           protocol_address_size == sizeof(IPv4Header::src) and
            ((opcode == OPCODE_REQUEST) or (opcode == OPCODE_REPLY));
 }
 
 string ARPMessage::serialize() const {
     if (not supported()) {
-        throw runtime_error(
-            "ARPMessage::serialize(): unsupported field combination (must be Ethernet/IP, and request or reply)");
+        throw runtime_error("ARPMessage::serialize(): unsupported field combination (must be "
+                            "Ethernet/IP, and request or reply)");
     }
 
     string ret;
@@ -82,7 +83,8 @@ string ARPMessage::to_string() const {
         opcode_str = "REPLY";
     }
     ss << "opcode=" << opcode_str << ", sender=" << ::to_string(sender_ethernet_address) << "/"
-       << inet_ntoa({htobe32(sender_ip_address)}) << ", target=" << ::to_string(target_ethernet_address) << "/"
+       << inet_ntoa({htobe32(sender_ip_address)})
+       << ", target=" << ::to_string(target_ethernet_address) << "/"
        << inet_ntoa({htobe32(target_ip_address)});
     return ss.str();
 }

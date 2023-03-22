@@ -11,7 +11,8 @@ TCPOverIPv4OverEthernetAdapter::TCPOverIPv4OverEthernetAdapter(TapFD &&tap,
                                                                const Address &ip_address,
                                                                const Address &next_hop)
     : _tap(move(tap)), _interface(eth_address, ip_address), _next_hop(next_hop) {
-    // Linux seems to ignore the first frame sent on a TAP device, so send a dummy frame to prime the pump :-(
+    // Linux seems to ignore the first frame sent on a TAP device, so send a dummy frame to prime
+    // the pump :-(
     EthernetFrame dummy_frame;
     _tap.write(dummy_frame.serialize());
 }
@@ -23,7 +24,8 @@ optional<TCPSegment> TCPOverIPv4OverEthernetAdapter::read() {
         return {};
     }
 
-    // Give the frame to the NetworkInterface. Get back an Internet datagram if frame was carrying one.
+    // Give the frame to the NetworkInterface. Get back an Internet datagram if frame was carrying
+    // one.
     optional<InternetDatagram> ip_dgram = _interface.recv_frame(frame);
 
     // The incoming frame may have caused the NetworkInterface to send a frame.
