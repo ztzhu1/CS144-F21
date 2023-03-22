@@ -26,7 +26,7 @@ size_t TCPConnection::time_since_last_segment_received() const {
 }
 
 void TCPConnection::segment_received(const TCPSegment &seg) {
-    if(!active_){
+    if (!active_) {
         return;
     }
 
