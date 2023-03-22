@@ -14,7 +14,6 @@
 //! the acknowledgment number and window size to advertise back to the
 //! remote TCPSender.
 class TCPReceiver {
-  public:
     uint64_t get_abs_ackno() const;
     uint64_t get_abs_seqno(WrappingInt32 seqno) { return unwrap(seqno, isn_, checkpoint_); }
     uint64_t get_stream_index(WrappingInt32 seqno, bool update_cp);

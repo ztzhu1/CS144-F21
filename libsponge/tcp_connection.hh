@@ -9,7 +9,6 @@
 //! \brief A complete endpoint of a TCP connection
 class TCPConnection {
   private:
-  public:
     void set_win(TCPHeader &header);
     void send_rst();
     void send_all();
