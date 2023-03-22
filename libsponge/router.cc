@@ -16,7 +16,7 @@ using namespace std;
 // You will need to add private members to the class declaration in `router.hh`
 
 template <typename... Targs>
-void DUMMY_CODE(Targs &&... /* unused */) {}
+void DUMMY_CODE(Targs &&.../* unused */) {}
 
 //! \param[in] route_prefix The "up-to-32-bit" IPv4 address prefix to match the datagram's destination address against
 //! \param[in] prefix_length For this route to be applicable, how many high-order (most-significant) bits of the route_prefix will need to match the corresponding bits of the datagram's destination address?
@@ -26,8 +26,9 @@ void Router::add_route(const uint32_t route_prefix,
                        const uint8_t prefix_length,
                        const optional<Address> next_hop,
                        const size_t interface_num) {
-    cerr << "DEBUG: adding route " << Address::from_ipv4_numeric(route_prefix).ip() << "/" << int(prefix_length)
-         << " => " << (next_hop.has_value() ? next_hop->ip() : "(direct)") << " on interface " << interface_num << "\n";
+    cerr << "DEBUG: adding route " << Address::from_ipv4_numeric(route_prefix).ip() << "/"
+         << int(prefix_length) << " => " << (next_hop.has_value() ? next_hop->ip() : "(direct)")
+         << " on interface " << interface_num << "\n";
 
     DUMMY_CODE(route_prefix, prefix_length, next_hop, interface_num);
     // Your code here.
@@ -40,7 +41,8 @@ void Router::route_one_datagram(InternetDatagram &dgram) {
 }
 
 void Router::route() {
-    // Go through all the interfaces, and route every incoming datagram to its proper outgoing interface.
+    // Go through all the interfaces, and route every incoming datagram to its proper outgoing
+    // interface.
     for (auto &interface : _interfaces) {
         auto &queue = interface.datagrams_out();
         while (not queue.empty()) {

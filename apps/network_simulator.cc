@@ -114,7 +114,8 @@ class Host {
         _interface.send_datagram(dgram, _next_hop);
 
         cerr << "Host " << _name << " trying to send datagram (with next hop = " << _next_hop.ip()
-             << "): " << dgram.header().summary() << " payload=\"" << dgram.payload().concatenate() << "\"\n";
+             << "): " << dgram.header().summary() << " payload=\"" << dgram.payload().concatenate()
+             << "\"\n";
 
         return dgram;
     }
@@ -131,9 +132,9 @@ class Host {
         while (not _interface.datagrams_out().empty()) {
             const auto &dgram_received = _interface.datagrams_out().front();
             if (not expecting(dgram_received)) {
-                throw runtime_error("Host " + _name +
-                                    " received unexpected Internet datagram: " + dgram_received.header().summary() +
-                                    " payload=\"" + dgram_received.payload().concatenate() + "\"");
+                throw runtime_error("Host " + _name + " received unexpected Internet datagram: " +
+                                    dgram_received.header().summary() + " payload=\"" +
+                                    dgram_received.payload().concatenate() + "\"");
             }
             remove_expectation(dgram_received);
             _interface.datagrams_out().pop();
@@ -141,8 +142,10 @@ class Host {
 
         if (not _expecting_to_receive.empty()) {
             auto &expected = _expecting_to_receive.front();
-            throw runtime_error("Host " + _name + " did NOT receive an expected Internet datagram: " +
-                                expected.header().summary() + " payload=\"" + expected.payload().concatenate() + "\"");
+            throw runtime_error(
+                "Host " + _name +
+                " did NOT receive an expected Internet datagram: " + expected.header().summary() +
+                " payload=\"" + expected.payload().concatenate() + "\"");
         }
     }
 };
@@ -197,8 +200,8 @@ class Network {
         queue<EthernetFrame> to_send = src;
         while (not to_send.empty()) {
             to_send.front().payload() = to_send.front().payload().concatenate();
-            cerr << "Transferring frame from " << src_name << " to " << dst_name << ": " << summary(to_send.front())
-                 << "\n";
+            cerr << "Transferring frame from " << src_name << " to " << dst_name << ": "
+                 << summary(to_send.front()) << "\n";
             dst.recv_frame(move(to_send.front()));
             to_send.pop();
         }
@@ -233,11 +236,18 @@ class Network {
     }
 
     void simulate_physical_connections() {
+        exchange_frames("router.default",
+                        _router.interface(default_id),
+                        "default_router",
+                        host("default_router").interface());
+        exchange_frames("router.eth0",
+                        _router.interface(eth0_id),
+                        "applesauce",
+                        host("applesauce").interface());
         exchange_frames(
-            "router.default", _router.interface(default_id), "default_router", host("default_router").interface());
-        exchange_frames("router.eth0", _router.interface(eth0_id), "applesauce", host("applesauce").interface());
-        exchange_frames("router.eth2", _router.interface(eth2_id), "cherrypie", host("cherrypie").interface());
-        exchange_frames("router.hs4", _router.interface(hs4_id), "hs_router", host("hs_router").interface());
+            "router.eth2", _router.interface(eth2_id), "cherrypie", host("cherrypie").interface());
+        exchange_frames(
+            "router.hs4", _router.interface(hs4_id), "hs_router", host("hs_router").interface());
         exchange_frames("router.uun3",
                         _router.interface(uun3_id),
                         "dm42",
@@ -276,7 +286,8 @@ void network_simulator() {
 
     Network network;
 
-    cout << green << "\n\nTesting traffic between two ordinary hosts (applesauce to cherrypie)..." << normal << "\n\n";
+    cout << green << "\n\nTesting traffic between two ordinary hosts (applesauce to cherrypie)..."
+         << normal << "\n\n";
     {
         auto dgram_sent = network.host("applesauce").send_to(network.host("cherrypie").address());
         dgram_sent.header().ttl--;
@@ -284,7 +295,8 @@ void network_simulator() {
         network.simulate();
     }
 
-    cout << green << "\n\nTesting traffic between two ordinary hosts (cherrypie to applesauce)..." << normal << "\n\n";
+    cout << green << "\n\nTesting traffic between two ordinary hosts (cherrypie to applesauce)..."
+         << normal << "\n\n";
     {
         auto dgram_sent = network.host("cherrypie").send_to(network.host("applesauce").address());
         dgram_sent.header().ttl--;
@@ -300,7 +312,8 @@ void network_simulator() {
         network.simulate();
     }
 
-    cout << green << "\n\nSuccess! Testing sending to the HS network and Internet." << normal << "\n\n";
+    cout << green << "\n\nSuccess! Testing sending to the HS network and Internet." << normal
+         << "\n\n";
     {
         auto dgram_sent = network.host("applesauce").send_to({"143.195.131.17"});
         dgram_sent.header().ttl--;
@@ -323,7 +336,8 @@ void network_simulator() {
         network.simulate();
     }
 
-    cout << green << "\n\nSuccess! Testing two hosts on the same network (dm42 to dm43)..." << normal << "\n\n";
+    cout << green << "\n\nSuccess! Testing two hosts on the same network (dm42 to dm43)..."
+         << normal << "\n\n";
     {
         auto dgram_sent = network.host("dm42").send_to(network.host("dm43").address());
         dgram_sent.header().ttl--;
