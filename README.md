@@ -24,7 +24,7 @@ I implemented a `RingBuffer` as the underlying data structure of `ByteStream`. I
 </div>
 
 ## Lab4 - TCPConnection
-It's the most difficult part of all the labs. There are a lot of corner cases. I feel a little ashamed (though as some people pointed out, it may be unnecessary) because I used _test case oriented programming_ to complete some parts of code. Besides, I realized the advantage of _defensive programming_. Use `assert` as many as possible can help us find the problems earlier.
+It's the most difficult part of all the labs. There are a lot of corner cases. I feel a little ashamed (though as some people pointed out, it may be unnecessary) because I used _test case oriented programming_ to complete some parts of code. Besides, I realized the advantage of _defensive programming_. Use `assert` as much as possible can help us find the problems earlier.
 
 I have some questions on the test. I can't pass tcp_ipv4 tests on my Ubuntu, all because of timeout, but other tests are fine. And I can pass all the tests on my WSL, except CS144 version of webget. Again, it's because of timeout. I believe it's not caused by my implementation because I passed all the tests. But I haven't figured out what goes wrong.
 
