@@ -1,3 +1,16 @@
+# CS144
+This is my implementation for [CS144-F21](https://cs144.github.io/). I used to try to do the project, but I failed. I was not familiar with a lot of things at that time, including C++, computer network, design pattern, etc. So I refered to others' blog. I didn't copy their codes directly (though at last, I copied most of codes from the blogs and read through it to convince myself I'm not copying). But following others' idea all the time means I didn't really understand the conception. So I died at lab4. After that, I shelved the course for some months. Recently, I delete the original meaningless repository and try to implement again. I found, surprisingly, that the labs are not so difficult than I thought before. Many things get clear and the document is not obscure anymore. Maybe I make some progress on learning and coding, maybe I have learnt more knowledge. Anyway, I'm happy and proud that I can keep on doing this until I succeed.
+## Lab0 - ByteStream
+I implemented a `RingBuffer` as the underlying data structure of `ByteStream`. It's more efficient than use a `vector` to store a lot of data segments. And this simplifies the implementation of `ByteStream`.
+## Lab1 - Reassembler
+## Lab2 - Receiver
+## Lab3 - Sender
+## Lab4 - TCPConnection
+It's the most difficult part of all the labs. There are a lot of corner cases. I feel a little ashamed (though as some people pointed out, it may be unnecessary) because I used _test case oriented programming_ to complete some parts of code. Besides, I realized the advantage of _defensive programming_. Use `assert` as many as possible can help us find the problems earlier.
+
+I have some questions on the test. I can't pass tcp_ipv4 tests on my Ubuntu, all because of timeout, but other tests are fine. And I can pass all the tests on my WSL, except CS144 version of webget. Again, it's because of timeout. I believe it's not caused by my implementation because I passed all the tests. But I haven't figured out what goes wrong.
+
+# Official document
 For build prereqs, see [the CS144 VM setup instructions](https://web.stanford.edu/class/cs144/vm_howto).
 
 ## Sponge quickstart
