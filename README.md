@@ -31,6 +31,9 @@ I have some questions on the test. I can't pass tcp_ipv4 tests on my Ubuntu, all
 <div align=center>
 <img src="test_results/lab4_pass_tests.png" width="200"/>
 </div>
+<div align=center>
+<img src="test_results/throughput.png" width="200"/>
+</div>
 
 ## Lab5 - Network Interface
 <div align=center>
