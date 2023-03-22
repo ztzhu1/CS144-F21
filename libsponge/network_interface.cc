@@ -130,7 +130,8 @@ optional<InternetDatagram> NetworkInterface::recv_frame(const EthernetFrame &fra
             waiting_dgrams_.erase(dgram_it);
         }
 
-        if (arp_msg.opcode == ARPMessage::OPCODE_REQUEST&&arp_msg.target_ip_address==ip_address_.ipv4_numeric()) {
+        if (arp_msg.opcode == ARPMessage::OPCODE_REQUEST &&
+            arp_msg.target_ip_address == ip_address_.ipv4_numeric()) {
             EthernetFrame reply_frame;
             auto &reply_header = reply_frame.header();
             reply_header.src = ethernet_address_;
@@ -142,7 +143,7 @@ optional<InternetDatagram> NetworkInterface::recv_frame(const EthernetFrame &fra
             reply_arp_msg.sender_ip_address = ip_address_.ipv4_numeric();
             reply_arp_msg.target_ip_address = sender_ip_addr;
             reply_arp_msg.target_ethernet_address = sender_eth_addr;
-            reply_frame.payload()=reply_arp_msg.serialize();
+            reply_frame.payload() = reply_arp_msg.serialize();
             frames_out_.push(reply_frame);
         }
     } else {
