@@ -37,6 +37,11 @@ I have some questions on the test. I can't pass tcp_ipv4 tests on my Ubuntu, all
 <img src="test_results/lab5_pass_tests.png" width="200"/>
 </div>
 
+## Lab6 - Router
+<div align=center>
+<img src="test_results/lab6_pass_tests.png" width="200"/>
+</div>
+
 # Official document
 For build prereqs, see [the CS144 VM setup instructions](https://web.stanford.edu/class/cs144/vm_howto).
 
