@@ -112,7 +112,9 @@ class BufferViewList {
     BufferViewList(const BufferList &buffers);
 
     //! \brief Construct from a std::string_view
-    BufferViewList(std::string_view str) { _views.push_back({const_cast<char *>(str.data()), str.size()}); }
+    BufferViewList(std::string_view str) {
+        _views.push_back({const_cast<char *>(str.data()), str.size()});
+    }
     //!@}
 
     //! \brief Discard the first `n` bytes of the string (does not require a copy or move)

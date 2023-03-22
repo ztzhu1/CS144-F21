@@ -64,7 +64,8 @@ EventLoop::Result EventLoop::wait_next_event(const int timeout_ms) {
     bool something_to_poll = false;
 
     // set up the pollfd for each rule
-    for (auto it = _rules.cbegin(); it != _rules.cend();) {  // NOTE: it gets erased or incremented in loop body
+    for (auto it = _rules.cbegin();
+         it != _rules.cend();) {  // NOTE: it gets erased or incremented in loop body
         const auto &this_rule = *it;
         if (this_rule.direction == Direction::In && this_rule.fd.eof()) {
             // no more reading on this rule, it's reached eof
@@ -83,7 +84,8 @@ EventLoop::Result EventLoop::wait_next_event(const int timeout_ms) {
             pollfds.push_back({this_rule.fd.fd_num(), static_cast<short>(this_rule.direction), 0});
             something_to_poll = true;
         } else {
-            pollfds.push_back({this_rule.fd.fd_num(), 0, 0});  // placeholder --- we still want errors
+            pollfds.push_back(
+                {this_rule.fd.fd_num(), 0, 0});  // placeholder --- we still want errors
         }
         ++it;
     }
@@ -118,7 +120,8 @@ EventLoop::Result EventLoop::wait_next_event(const int timeout_ms) {
         const auto poll_ready = static_cast<bool>(this_pollfd.revents & this_pollfd.events);
         const auto poll_hup = static_cast<bool>(this_pollfd.revents & POLLHUP);
         if (poll_hup && this_pollfd.events && !poll_ready) {
-            // if we asked for the status, and the _only_ condition was a hangup, this FD is defunct:
+            // if we asked for the status, and the _only_ condition was a hangup, this FD is
+            // defunct:
             //   - if it was POLLIN and nothing is readable, no more will ever be readable
             //   - if it was POLLOUT, it will not be writable again
             this_rule.cancel();
@@ -133,8 +136,8 @@ EventLoop::Result EventLoop::wait_next_event(const int timeout_ms) {
 
             // only check for busy wait if we're not canceling or exiting
             if (count_before == this_rule.service_count() and this_rule.interest()) {
-                throw runtime_error(
-                    "EventLoop: busy wait detected: callback did not read/write fd and is still interested");
+                throw runtime_error("EventLoop: busy wait detected: callback did not read/write fd "
+                                    "and is still interested");
             }
         }
 

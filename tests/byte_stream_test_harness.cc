@@ -15,14 +15,17 @@ ByteStreamTestStep::~ByteStreamTestStep() {}
 
 // ByteStreamExpectationViolation
 
-ByteStreamExpectationViolation::ByteStreamExpectationViolation(const std::string &msg) : std::runtime_error(msg) {}
+ByteStreamExpectationViolation::ByteStreamExpectationViolation(const std::string &msg)
+    : std::runtime_error(msg) {}
 
 template <typename T>
-ByteStreamExpectationViolation ByteStreamExpectationViolation::property(const std::string &property_name,
-                                                                        const T &expected,
-                                                                        const T &actual) {
-    return ByteStreamExpectationViolation("The ByteStream should have had " + property_name + " equal to " +
-                                          to_string(expected) + " but instead it was " + to_string(actual));
+ByteStreamExpectationViolation ByteStreamExpectationViolation::property(
+    const std::string &property_name,
+    const T &expected,
+    const T &actual) {
+    return ByteStreamExpectationViolation("The ByteStream should have had " + property_name +
+                                          " equal to " + to_string(expected) +
+                                          " but instead it was " + to_string(actual));
 }
 
 // ByteStreamExpectation
@@ -74,8 +77,8 @@ void ByteStreamTestHarness::execute(const ByteStreamTestStep &step) {
             std::cerr << "\n\t" << s;
         }
         std::cerr << std::endl << std::endl;
-        throw ByteStreamExpectationViolation("The test \"" + _test_name +
-                                             "\" caused your implementation to throw an exception!");
+        throw ByteStreamExpectationViolation(
+            "The test \"" + _test_name + "\" caused your implementation to throw an exception!");
     }
 }
 
@@ -93,7 +96,8 @@ std::string Write::description() const { return "write \"" + _data + "\" to the 
 void Write::execute(ByteStream &bs) const {
     auto bytes_written = bs.write(_data);
     if (_bytes_written and bytes_written != _bytes_written.value()) {
-        throw ByteStreamExpectationViolation::property("bytes_written", _bytes_written.value(), bytes_written);
+        throw ByteStreamExpectationViolation::property(
+            "bytes_written", _bytes_written.value(), bytes_written);
     }
 }
 
@@ -143,22 +147,29 @@ void BufferSize::execute(ByteStream &bs) const {
 }
 
 // RemainingCapacity
-RemainingCapacity::RemainingCapacity(const size_t remaining_capacity) : _remaining_capacity(remaining_capacity) {}
-std::string RemainingCapacity::description() const { return "remaining_capacity: " + to_string(_remaining_capacity); }
+RemainingCapacity::RemainingCapacity(const size_t remaining_capacity)
+    : _remaining_capacity(remaining_capacity) {}
+std::string RemainingCapacity::description() const {
+    return "remaining_capacity: " + to_string(_remaining_capacity);
+}
 void RemainingCapacity::execute(ByteStream &bs) const {
     auto remaining_capacity = bs.remaining_capacity();
     if (remaining_capacity != _remaining_capacity) {
-        throw ByteStreamExpectationViolation::property("remaining_capacity", _remaining_capacity, remaining_capacity);
+        throw ByteStreamExpectationViolation::property(
+            "remaining_capacity", _remaining_capacity, remaining_capacity);
     }
 }
 
 // BytesWritten
 BytesWritten::BytesWritten(const size_t bytes_written) : _bytes_written(bytes_written) {}
-std::string BytesWritten::description() const { return "bytes_written: " + to_string(_bytes_written); }
+std::string BytesWritten::description() const {
+    return "bytes_written: " + to_string(_bytes_written);
+}
 void BytesWritten::execute(ByteStream &bs) const {
     auto bytes_written = bs.bytes_written();
     if (bytes_written != _bytes_written) {
-        throw ByteStreamExpectationViolation::property("bytes_written", _bytes_written, bytes_written);
+        throw ByteStreamExpectationViolation::property(
+            "bytes_written", _bytes_written, bytes_written);
     }
 }
 
@@ -178,7 +189,8 @@ std::string Peek::description() const { return "\"" + _output + "\" at the front
 void Peek::execute(ByteStream &bs) const {
     auto output = bs.peek_output(_output.size());
     if (output != _output) {
-        throw ByteStreamExpectationViolation("Expected \"" + _output + "\" at the front of the stream, but found \"" +
+        throw ByteStreamExpectationViolation("Expected \"" + _output +
+                                             "\" at the front of the stream, but found \"" +
                                              output + "\"");
     }
 }
